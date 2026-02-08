@@ -1,4 +1,4 @@
-# def maini():
+# def maini(): 
 import pygame
 import random
 import sys
