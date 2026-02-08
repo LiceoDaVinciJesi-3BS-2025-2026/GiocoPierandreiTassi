@@ -3,6 +3,19 @@ import pygame
 import random
 import sys
 
+class Colonna:
+    def __init__(self, x):
+        self.x = x
+        self.spazio = 200
+        self.y = random.randint(-200, 0)
+
+    def muovi(self):
+        self.x -= VEL_AVANZ
+
+    def disegna(self):
+        schermo.blit(tuboSu, (self.x, self.y))
+        schermo.blit(tuboGiu,(self.x, self.y + tuboSu.get_height() + self.spazio)) # l'ho fatto con chat
+        
 pygame.init()
 
 # importazione delle immagini
@@ -12,8 +25,8 @@ sfondo = pygame.transform.scale(sfondo, (500, 500))
 base = pygame.image.load("base.png").convert()
 base = pygame.transform.scale(base, (600,100))
 uccello = pygame.image.load("uccello.png")
-tubo_giu = pygame.image.load("tubo.png") #tubo che verra messo in basso
-tubo_su= pygame.transform.flip(tubo_giu, False, True) #tubo rovescito che verrà messo in basso
+tuboGiu = pygame.image.load("tubo.png") #tubo che verra messo in basso
+tuboSu= pygame.transform.flip(tuboGiu, False, True) #tubo rovescito che verrà messo in basso
 gameover = pygame.image.load("gameover.png")
 VEL_AVANZ = 3
 FPS = 60 #frequenza per secondo
@@ -27,9 +40,13 @@ FPS = 60 #frequenza per secondo
 def aggiorna(): # la funzione aggiorna serve per rendere "fluido" il gioco
     pygame.display.update()
     pygame.time.Clock().tick(FPS)
-    
-def disegna(): # quesa funzione disegna oggetti sullo schermo anche a gioco avviato
+
+def disegna():  # quesa funzione disegna oggetti sullo schermo anche a gioco avviato
     schermo.blit(sfondo, (0, 0))
+    
+    for colonna in colonne:
+        colonna.disegna()
+    
     schermo.blit(base, (basex, 400))
     schermo.blit(uccello, (60, uccelloy))
     pygame.display.flip()
@@ -57,13 +74,16 @@ def inizializza(): #riporta tutti gli oggetti alla posizione iniziale
     uccelloy = 200
     uccello_vely = 0
 
+colonne = [Colonna(500),Colonna(700)]
 
 inizializza()
 
 running = True
 
 while running: #avvio del gioco
-
+    for colonna in colonne:
+       colonna.muovi()
+    
     basex -= VEL_AVANZ
     if basex < -45:
         basex = 0
@@ -71,6 +91,10 @@ while running: #avvio del gioco
     uccello_vely += 1
     uccelloy += uccello_vely
     
+    if colonne[0].x < -60:  # per far ricomparire una colonna a sinistra dopo che ne è ucita una a
+        colonne.pop(0)
+        colonne.append(Colonna(400))
+
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
             uccello_vely = -10
