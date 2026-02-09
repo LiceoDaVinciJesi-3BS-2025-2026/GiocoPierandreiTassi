@@ -14,7 +14,7 @@ class Colonna:
 
     def disegna(self):
         schermo.blit(tuboSu, (self.x, self.y))
-        schermo.blit(tuboGiu,(self.x, self.y + tuboSu.get_height() + self.spazio)) # l'ho fatto con chat
+        schermo.blit(tuboGiu,(self.x, self.y + tuboSu.get_height() + self.spazio))
         
 pygame.init()
 
