@@ -16,14 +16,13 @@ tuboGiu = pygame.image.load("tubo.png")
 tuboSu = pygame.transform.flip(tuboGiu, False, True)
 gameover = pygame.image.load("gameover.png")
 font = pygame.font.SysFont('Comic Sans MS', 32)
-livello = 0
-VEL_AVANZ = 3
-FPS = 60
+livello = 0 # 0 = menu, 1 = livello 1, 2 = livello 2 etc...
+VEL_AVANZ = 3 # Velocità di avanzamento dei tubi base
+FPS = 60 # Frames per secondo
 
 
 
-def crea_coppia_tubi(x):
-    """Crea una coppia di tubi (uno sopra e uno sotto) con lo spazio in mezzo"""
+def crea_coppia_tubi(x): # Crea una coppia di tubi (superiore e inferiore) con una posizione casuale per lo spazio tra i due tubi
     spazio = 200
     y_apertura = random.randint(100, 250)  # Punto centrale dove sarà lo spazio
     
@@ -49,12 +48,11 @@ def crea_coppia_tubi(x):
     
     return [tubo_superiore, tubo_inferiore]
 
-def muovi_tubo(tubo):
-    """Muove il tubo verso sinistra"""
-    tubo['x'] -= VEL_AVANZ
+def muovi_tubo(tubo): # Sposta il tubo verso sinistra
+    
+    tubo['x'] -= VEL_AVANZ # La velocità di avanzamento è costante, ma aumenta con il livello
 
-def disegna_tubo(tubo):
-    """Disegna un singolo tubo sullo schermo"""
+def disegna_tubo(tubo): #   Disegna il tubo sullo schermo in base al suo tipo (superiore o inferiore)
     if tubo['tipo'] == 'superiore':
         # Crea un'immagine del tubo superiore scalata
         tubo_scalato = pygame.transform.scale(tuboSu, (tubo['larghezza'], tubo['altezza']))
@@ -80,8 +78,7 @@ def controlla_collisione(uccello_x, uccello_y, uccello_largh, uccello_alt, tubo)
     
     return False
 
-def aggiorna_punteggio():
-    """Aggiorna il punteggio quando l'uccello supera un tubo"""
+def punteggio(): # Aggiorna il punteggio quando l'uccello supera un tubo
     global punteggio
     for tubo in tubi:
         # Controlla se l'uccello ha superato il tubo e non è stato ancora contato
@@ -104,7 +101,7 @@ def disegna():
     
     # Mostra il punteggio (converti in int per mostrare numeri interi)
     testo_punteggio = font.render(f"Punteggio: {int(punteggio)}", True, (255, 255, 255))
-    schermo.blit(testo_punteggio, (180, 10))   
+    schermo.blit(testo_punteggio, (180, 10))  
     pygame.display.flip()
 
 def hai_perso():
@@ -170,6 +167,9 @@ def hai_vinto():
                     menu()  # Chiama la funzione menu
                     return
 
+#----------------------------------------------------------------------------------------------------------------
+#------------------------------------------------ LIVELLO 1 -----------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
 def livello1():
     livello = 1
     global uccelloy, uccello_vely, basex
@@ -238,7 +238,9 @@ def livello1():
         disegna()
         aggiorna()
 
-
+#----------------------------------------------------------------------------------------------------------------
+#------------------------------------------------ LIVELLO 2 -----------------------------------------------------
+#----------------------------------------------------------------------------------------------------------------
 def livello2():
     livello = 2
     global uccelloy, uccello_vely, basex   
