@@ -21,8 +21,11 @@ font = pygame.font.SysFont('Comic Sans MS', 32)
 livello = 0 # 0 = menu, 1 = livello 1, 2 = livello 2 etc...
 VEL_AVANZ = 3 # Velocità di avanzamento dei tubi base
 FPS = 60 # Frames per secondo
+gravita_invertita = False
 
-
+def invertiGravita():
+    global gravita_invertita
+    gravita_invertita = False  # Toggle on/off
 
 def crea_coppia_tubi(x): # Crea una coppia di tubi (superiore e inferiore) con una posizione casuale per lo spazio tra i due tubi
     spazio = 200
@@ -123,17 +126,14 @@ def hai_perso():
                 inizializza()
                 return
 
-def invertiGravita(): # Inverte la gravità (per il livello 2)
-    global uccello_vely
-    uccello_vely = uccello_vely * -1  # Inverte la direzione della velocità verticale
 
 def inizializza():
-    global uccelloy, uccello_vely, basex, tubi, punteggio
+    global uccelloy, uccello_vely, basex, tubi, punteggio, gravita_invertita 
     basex = 0
     uccelloy = 200
     uccello_vely = 0
     punteggio = 0
-    
+    gravita_invertita = False
     # Crea le coppie di tubi
     tubi = []
     coppia1 = crea_coppia_tubi(500)
@@ -244,31 +244,40 @@ def livello1():
 #----------------------------------------------------------------------------------------------------------------
 def livello2():
     livello = 2
-    global uccelloy, uccello_vely, basex   
+    global uccelloy, uccello_vely, basex, gravita_invertita
+    
     inizializza()
     running = True  
+    
     while running: 
         # Muovi i tubi
         for tubo in tubi:
             muovi_tubo(tubo)
         
-        basex -= VEL_AVANZ + livello  # La base si muove più velocemente con l'aumentare del livello
+        basex -= VEL_AVANZ + livello
         if basex < -45:
             basex = 0
+        
+        # Applica la gravità in base allo stato
+        if gravita_invertita:
+            uccello_vely -= 1  # Gravità verso l'alto
+        else:
+            uccello_vely += 1  # Gravità normale
             
-        uccello_vely += 1
         uccelloy += uccello_vely
         
         # Aggiorna il punteggio
         aggiorna_punteggio()
         
+        # Inverti la gravità quando raggiungi 20 punti
+        if punteggio >= 20 and not gravita_invertita:
+            invertiGravita()
+        
         # Rimuovi le coppie uscite e aggiungine di nuove
         if len(tubi) > 0 and tubi[0]['x'] < -60:
-            # Rimuovi la coppia (2 tubi: superiore e inferiore)
             tubi.pop(0)
             tubi.pop(0)
             
-            # Trova la x dell'ultimo tubo e aggiungi una nuova coppia
             if len(tubi) >= 2:
                 ultima_x = tubi[-1]['x']
             else:
@@ -280,7 +289,10 @@ def livello2():
         # Gestione eventi
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                uccello_vely = -10
+                if gravita_invertita:
+                    uccello_vely = 10  # Spinta verso il basso quando la gravità è invertita
+                else:
+                    uccello_vely = -10  # Spinta verso l'alto (normale)
                 
             if event.type == pygame.QUIT:
                 running = False
@@ -300,14 +312,13 @@ def livello2():
             if controlla_collisione(60, uccelloy, uccello_largh, uccello_alt, tubo):
                 hai_perso()
                 break
-        if punteggio >= 20:  # Inverti la gravità dopo aver raggiunto 20 punti
-            invertiGravita()
 
-        if punteggio >= 50:  # Condizione per vincere
+        if punteggio >= 70:  # Condizione per vincere
             hai_vinto()
             return
+            
         disegna()
-        aggiorna() 
+        aggiorna()
 
 def menu():
     schermo.blit(sfondo, (0, 0))
@@ -330,6 +341,7 @@ def menu():
                 if 55 <= mouse_x <= 250 and 200 <= mouse_y <= 250:
                     livello1()
                     return
+                
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Mouse button 1 is left click
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 if 55 <= mouse_x <= 250 and 250 <= mouse_y <= 300:
