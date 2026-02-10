@@ -3,46 +3,23 @@ import pygame
 import random
 import sys
 
-<<<<<<< HEAD
-=======
-def crea_colonna(x):
-    return {"x": x,"y": random.randint(-200, 0),"spazio": 190} # dizionario (posizione delle colonne)
-colonne = [crea_colonna(500), crea_colonna(700)] # creo una lista di dizionari
-
-def muovi_colonne():
-    for colonna in colonne:
-        colonna["x"] -= VEL_AVANZ
-        
-def disegna_colonne():
-    for colonna in colonne:
-        schermo.blit(tuboSu, (colonna["x"], colonna["y"]))
-        schermo.blit(tuboGiu, (colonna["x"], colonna["y"] + tuboSu.get_height() + colonna["spazio"]))
-
->>>>>>> 2055c010089acf3b9e80c4554890e161faf5eba7
 pygame.init()
 
-# importazione delle immagini 
+# importazione delle immagini
 schermo = pygame.display.set_mode((500,500))
-sfondonotte = pygame.image.load("sfondonotte.png").convert()
-sfondonotte = pygame.transform.scale(sfondonotte, (500, 500))
-base2 = pygame.image.load("base2.png").convert()
-base2 = pygame.transform.scale(base2, (600,100))
+sfondo = pygame.image.load("sfondo.png").convert()
+sfondo = pygame.transform.scale(sfondo, (500, 500))
+base = pygame.image.load("base.png").convert()
+base = pygame.transform.scale(base, (600,100))
 uccello = pygame.image.load("uccello.png")
-<<<<<<< HEAD
 tuboGiu = pygame.image.load("tubo.png")
 tuboSu = pygame.transform.flip(tuboGiu, False, True)
-=======
-# uccello = pygame.transform.scale(uccello, (80, 80)) - uso questa linea solo con altre skin
-tuboGiu = pygame.image.load("tubo.png") #tubo che verra messo in basso
-tuboSu= pygame.transform.flip(tuboGiu, False, True) #tubo rovescito che verrà messo in basso
->>>>>>> 2055c010089acf3b9e80c4554890e161faf5eba7
 gameover = pygame.image.load("gameover.png")
 font = pygame.font.SysFont('Comic Sans MS', 32)
 livello = 0
 VEL_AVANZ = 3
 FPS = 60
 
-<<<<<<< HEAD
 
 
 def crea_coppia_tubi(x):
@@ -121,18 +98,8 @@ def disegna():
     
     for tubo in tubi:
         disegna_tubo(tubo)
-=======
-def aggiorna(): # la funzione aggiorna serve per rendere "fluido" il gioco
-    pygame.display.update()
-    pygame.time.Clock().tick(FPS)
-
-def disegna():  # quesa funzione disegna oggetti sullo schermo anche a gioco avviato
-    schermo.blit(sfondonotte, (0, 0))
     
-    disegna_colonne()
->>>>>>> 2055c010089acf3b9e80c4554890e161faf5eba7
-    
-    schermo.blit(base2, (base2x, 400))
+    schermo.blit(base, (basex, 400))
     schermo.blit(uccello, (60, uccelloy))
     
     # Mostra il punteggio (converti in int per mostrare numeri interi)
@@ -140,13 +107,8 @@ def disegna():  # quesa funzione disegna oggetti sullo schermo anche a gioco avv
     schermo.blit(testo_punteggio, (180, 10))   
     pygame.display.flip()
 
-<<<<<<< HEAD
 def hai_perso():
     schermo.blit(gameover, (160, 200))
-=======
-def hai_perso(): # qunado l'uccello va a contatto con la base2 o con il tetto verrà applicata questa funzione che mette in pausa il gioco facendo apparire la scritta "GameOver"
-    schermo.blit(gameover,(160, 200))
->>>>>>> 2055c010089acf3b9e80c4554890e161faf5eba7
     aggiorna()
     
     while True:
@@ -175,7 +137,7 @@ def inizializza():
     tubi.extend(coppia2)
 
 def hai_vinto():
-    schermo.fill((0, 0, 0))  # Schermo nero per indicare la vittoria
+    schermo.blit(sfondo, (0, 0))  # Schermo nero per indicare la vittoria
     testo_vittoria = font.render("Hai vinto!", True, (255, 255, 255))
     schermo.blit(testo_vittoria, (200, 10))
     testo_menu = font.render("TORNA AL MENU", True, (255, 255, 255))
@@ -259,7 +221,6 @@ def livello1():
         uccello_largh = uccello.get_width()
         uccello_alt = uccello.get_height()
         
-<<<<<<< HEAD
         # Verifica collisione con base o soffitto
         if uccelloy >= 390 or uccelloy <= 10:
             hai_perso()
@@ -276,32 +237,6 @@ def livello1():
         
         disegna()
         aggiorna()
-=======
-
-def inizializza(): #riporta tutti gli oggetti alla posizione iniziale
-    global uccelloy, uccello_vely, base2x
-    base2x = 0
-    uccelloy = 200
-    uccello_vely = 0
-
-inizializza()
-
-running = True
-
-while running: #avvio del gioco
-    muovi_colonne()
-    
-    base2x -= VEL_AVANZ
-    if base2x < -45:
-        base2x = 0
-        
-    uccello_vely += 1
-    uccelloy += uccello_vely
-    
-    if colonne[0]['x'] < -60:  # per far ricomparire una colonna a sinistra dopo che ne è ucita una a destra
-        colonne.pop(0)
-        colonne.append(crea_colonna(400))
->>>>>>> 2055c010089acf3b9e80c4554890e161faf5eba7
 
 
 def livello2():
@@ -324,7 +259,6 @@ def livello2():
         # Aggiorna il punteggio
         aggiorna_punteggio()
         
-<<<<<<< HEAD
         # Rimuovi le coppie uscite e aggiungine di nuove
         if len(tubi) > 0 and tubi[0]['x'] < -60:
             # Rimuovi la coppia (2 tubi: superiore e inferiore)
@@ -339,11 +273,6 @@ def livello2():
                 
             nuova_coppia = crea_coppia_tubi(ultima_x + 250)
             tubi.extend(nuova_coppia)
-=======
-    if uccelloy >= 390 or uccelloy <= 10: #verifica se l'uccello va a contatto con la base2 o con il "soffito"
-        hai_perso()
-        
->>>>>>> 2055c010089acf3b9e80c4554890e161faf5eba7
 
         # Gestione eventi
         for event in pygame.event.get():
@@ -375,11 +304,14 @@ def livello2():
         disegna()
         aggiorna() 
 
-<<<<<<< HEAD
 def menu():
     schermo.blit(sfondo, (0, 0))
-    testo_menu = font.render("Premi SPAZIO per iniziare", True, (255, 255, 255))
-    schermo.blit(testo_menu, (55, 200))
+    testo_menu = font.render("MENU", True, (255, 255, 255))
+    schermo.blit(testo_menu, (200, 20))
+    livello1_text = font.render("1 - Livello 1", True, (255, 255, 255))
+    schermo.blit(livello1_text, (150, 200))
+    livello2_text = font.render("2 - Livello 2", True, (255, 255, 255))
+    schermo.blit(livello2_text, (150, 250))
     pygame.display.flip()
     
     while True:
@@ -388,16 +320,16 @@ def menu():
                 pygame.quit()
                 sys.exit()
             
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_1:
-                livello1()
-                return
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_2:
-                livello2()
-                return
-
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Mouse button 1 is left click
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if 55 <= mouse_x <= 250 and 200 <= mouse_y <= 250:
+                    livello1()
+                    return
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Mouse button 1 is left click
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if 55 <= mouse_x <= 250 and 250 <= mouse_y <= 300:
+                    livello2()
+                    return
+                
 menu()
 #main()
-=======
-#main()
-
->>>>>>> 2055c010089acf3b9e80c4554890e161faf5eba7
