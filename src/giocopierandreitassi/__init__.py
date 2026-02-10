@@ -9,6 +9,8 @@ pygame.init()
 schermo = pygame.display.set_mode((500,500))
 sfondo = pygame.image.load("sfondo.png").convert()
 sfondo = pygame.transform.scale(sfondo, (500, 500))
+sfondoApocalittico = pygame.image.load("SfondoApocalittico.png").convert()
+sfondoApocalittico = pygame.transform.scale(sfondoApocalittico, (500, 500))
 base = pygame.image.load("base.png").convert()
 base = pygame.transform.scale(base, (600,100))
 uccello = pygame.image.load("uccello.png")
@@ -78,7 +80,7 @@ def controlla_collisione(uccello_x, uccello_y, uccello_largh, uccello_alt, tubo)
     
     return False
 
-def punteggio(): # Aggiorna il punteggio quando l'uccello supera un tubo
+def aggiorna_punteggio(): # Aggiorna il punteggio quando l'uccello supera un tubo
     global punteggio
     for tubo in tubi:
         # Controlla se l'uccello ha superato il tubo e non è stato ancora contato
@@ -91,7 +93,10 @@ def aggiorna():
     pygame.time.Clock().tick(FPS)
 
 def disegna():
-    schermo.blit(sfondo, (0, 0))
+    if invertiGravita():
+        schermo.blit(sfondoApocalittico, (0, 0))
+    else:
+        schermo.blit(sfondo, (0, 0))
     
     for tubo in tubi:
         disegna_tubo(tubo)
@@ -118,6 +123,10 @@ def hai_perso():
                 inizializza()
                 return
 
+def invertiGravita(): # Inverte la gravità (per il livello 2)
+    global uccello_vely
+    uccello_vely = uccello_vely * -1  # Inverte la direzione della velocità verticale
+
 def inizializza():
     global uccelloy, uccello_vely, basex, tubi, punteggio
     basex = 0
@@ -133,19 +142,12 @@ def inizializza():
     tubi.extend(coppia1)
     tubi.extend(coppia2)
 
-def hai_vinto():
+def hai_vinto(): # Mostra la schermata di vittoria e torna al menu
     schermo.blit(sfondo, (0, 0))  # Schermo nero per indicare la vittoria
     testo_vittoria = font.render("Hai vinto!", True, (255, 255, 255))
     schermo.blit(testo_vittoria, (200, 10))
     testo_menu = font.render("TORNA AL MENU", True, (255, 255, 255))
     
-    # Posizione del testo
-    pos_x = 130
-    pos_y = 200
-    schermo.blit(testo_menu, (pos_x, pos_y))
-    
-    # Crea un rettangolo per il testo (per rilevare i click)
-    rect_menu = testo_menu.get_rect(topleft=(pos_x, pos_y))
     
     aggiorna()
     
@@ -161,10 +163,9 @@ def hai_vinto():
             
             # Rileva il click del mouse
             if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                # Verifica se il click è dentro il rettangolo del testo
-                if rect_menu.collidepoint(mouse_pos):
-                    menu()  # Chiama la funzione menu
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if 150 <= mouse_x <= 350 and 50 <= mouse_y <= 100:  # Controlla se il click è sul testo "TORNA AL MENU"
+                    menu()
                     return
 
 #----------------------------------------------------------------------------------------------------------------
@@ -231,7 +232,7 @@ def livello1():
                 hai_perso()
                 break
         
-        if punteggio >= 10:  # Condizione per vincere 
+        if punteggio >= 30:  # Condizione per vincere 
             hai_vinto()
             return
         
@@ -299,7 +300,9 @@ def livello2():
             if controlla_collisione(60, uccelloy, uccello_largh, uccello_alt, tubo):
                 hai_perso()
                 break
-        
+        if punteggio >= 20:  # Inverti la gravità dopo aver raggiunto 20 punti
+            invertiGravita()
+
         if punteggio >= 50:  # Condizione per vincere
             hai_vinto()
             return
