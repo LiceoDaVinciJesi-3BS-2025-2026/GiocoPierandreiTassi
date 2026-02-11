@@ -23,9 +23,15 @@ VEL_AVANZ = 3 # Velocità di avanzamento dei tubi base
 FPS = 60 # Frames per secondo
 gravita_invertita = False
 
+def disegna_barra_progresso(x, y, larghezza, altezza, percentuale):
+    pygame.draw.rect(schermo, (100, 100, 100), (x, y, larghezza, altezza), border_radius=8)
+    pygame.draw.rect(schermo, (0, 200, 0), (x, y, larghezza * percentuale // 100, altezza), border_radius=8)
+
+
 def invertiGravita():
     global gravita_invertita
-    gravita_invertita = False  # Toggle on/off
+    gravita_invertita = not gravita_invertita
+
 
 def crea_coppia_tubi(x): # Crea una coppia di tubi (superiore e inferiore) con una posizione casuale per lo spazio tra i due tubi
     spazio = 200
@@ -96,7 +102,7 @@ def aggiorna():
     pygame.time.Clock().tick(FPS)
 
 def disegna():
-    if invertiGravita():
+    if gravita_invertita:
         schermo.blit(sfondoApocalittico, (0, 0))
     else:
         schermo.blit(sfondo, (0, 0))
@@ -107,10 +113,10 @@ def disegna():
     schermo.blit(base, (basex, 400))
     schermo.blit(uccello, (60, uccelloy))
     
-    # Mostra il punteggio (converti in int per mostrare numeri interi)
     testo_punteggio = font.render(f"Punteggio: {int(punteggio)}", True, (255, 255, 255))
     schermo.blit(testo_punteggio, (180, 10))  
     pygame.display.flip()
+
 
 def hai_perso():
     schermo.blit(gameover, (160, 200))
@@ -125,13 +131,17 @@ def hai_perso():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 inizializza()
                 return
+            
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                menu()
+                return
 
 
 def inizializza():
     global uccelloy, uccello_vely, basex, tubi, punteggio, gravita_invertita 
     basex = 0
     uccelloy = 200
-    uccello_vely = 0
+    uccello_vely = 3
     punteggio = 0
     gravita_invertita = False
     # Crea le coppie di tubi
@@ -258,20 +268,17 @@ def livello2():
         if basex < -45:
             basex = 0
         
-        # Applica la gravità in base allo stato
         if gravita_invertita:
-            uccello_vely -= 1  # Gravità verso l'alto
+            uccello_vely -= 1
         else:
-            uccello_vely += 1  # Gravità normale
-            
+            uccello_vely += 1
+
         uccelloy += uccello_vely
-        
+
         # Aggiorna il punteggio
         aggiorna_punteggio()
-        
-        # Inverti la gravità quando raggiungi 20 punti
-        if punteggio >= 20 and not gravita_invertita:
-            invertiGravita()
+
+
         
         # Rimuovi le coppie uscite e aggiungine di nuove
         if len(tubi) > 0 and tubi[0]['x'] < -60:
@@ -312,6 +319,10 @@ def livello2():
             if controlla_collisione(60, uccelloy, uccello_largh, uccello_alt, tubo):
                 hai_perso()
                 break
+        
+        if punteggio >= 20 and not gravita_invertita:
+            invertiGravita()
+
 
         if punteggio >= 70:  # Condizione per vincere
             hai_vinto()
@@ -321,32 +332,80 @@ def livello2():
         aggiorna()
 
 def menu():
-    schermo.blit(sfondo, (0, 0))
-    testo_menu = font.render("MENU", True, (255, 255, 255))
-    schermo.blit(testo_menu, (200, 20))
-    livello1_text = font.render("1 - Livello 1", True, (255, 255, 255))
-    schermo.blit(livello1_text, (150, 200))
-    livello2_text = font.render("2 - Livello 2", True, (255, 255, 255))
-    schermo.blit(livello2_text, (150, 250))
-    pygame.display.flip()
-    
+    clock = pygame.time.Clock()
+
+    # Percentuali di completamento (modifica in futuro se salvi i progressi)
+    progresso_livello1 = min(int((punteggio / 30) * 100), 100) if 'punteggio' in globals() else 0
+    progresso_livello2 = min(int((punteggio / 70) * 100), 100) if 'punteggio' in globals() else 0
+
     while True:
+        schermo.blit(sfondo, (0, 0))
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        # Titolo
+        titolo_font = pygame.font.SysFont('Comic Sans MS', 48)
+        titolo = titolo_font.render("FLAPPY GAME", True, (255, 255, 255))
+        schermo.blit(titolo, (120, 40))
+
+        # ---------- LIVELLO 1 ----------
+        r1 = pygame.Rect(110, 150, 280, 90)
+        colore1 = (70, 150, 255) if r1.collidepoint(mouse_x, mouse_y) else (40, 90, 200)
+        pygame.draw.rect(schermo, colore1, r1, border_radius=15)
+
+        testo1 = font.render("Livello 1", True, (255, 255, 255))
+        schermo.blit(testo1, (r1.x + 20, r1.y + 10))
+
+        # Barra progresso livello 1
+        barra_x = r1.x + 20
+        barra_y = r1.y + 50
+        barra_larg = 200
+        barra_alt = 14
+
+        pygame.draw.rect(schermo, (120, 120, 120), (barra_x, barra_y, barra_larg, barra_alt), border_radius=7)
+        pygame.draw.rect(schermo, (0, 220, 0),
+                         (barra_x, barra_y, barra_larg * progresso_livello1 // 100, barra_alt),
+                         border_radius=7)
+
+        perc1 = font.render(f"{progresso_livello1}%", True, (255, 255, 255))
+        schermo.blit(perc1, (barra_x + barra_larg + 10, barra_y - 5))
+
+        # ---------- LIVELLO 2 ----------
+        r2 = pygame.Rect(110, 280, 280, 90)
+        colore2 = (255, 140, 80) if r2.collidepoint(mouse_x, mouse_y) else (200, 90, 40)
+        pygame.draw.rect(schermo, colore2, r2, border_radius=15)
+
+        testo2 = font.render("Livello 2", True, (255, 255, 255))
+        schermo.blit(testo2, (r2.x + 20, r2.y + 10))
+
+        # Barra progresso livello 2
+        barra_x2 = r2.x + 20
+        barra_y2 = r2.y + 50
+
+        pygame.draw.rect(schermo, (120, 120, 120), (barra_x2, barra_y2, barra_larg, barra_alt), border_radius=7)
+        pygame.draw.rect(schermo, (0, 220, 0),
+                         (barra_x2, barra_y2, barra_larg * progresso_livello2 // 100, barra_alt),
+                         border_radius=7)
+
+        perc2 = font.render(f"{progresso_livello2}%", True, (255, 255, 255))
+        schermo.blit(perc2, (barra_x2 + barra_larg + 10, barra_y2 - 5))
+
+        pygame.display.flip()
+        clock.tick(60)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Mouse button 1 is left click
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                if 55 <= mouse_x <= 250 and 200 <= mouse_y <= 250:
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if r1.collidepoint(event.pos):
                     livello1()
                     return
-                
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:  # Mouse button 1 is left click
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                if 55 <= mouse_x <= 250 and 250 <= mouse_y <= 300:
+                if r2.collidepoint(event.pos):
                     livello2()
                     return
+
+
                 
 menu()
 #main()
