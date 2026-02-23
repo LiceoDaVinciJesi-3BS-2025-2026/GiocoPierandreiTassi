@@ -6,14 +6,16 @@ pygame.init()
 
 # ── Risorse ──────────────────────────────────────────────────────────────────
 schermo = pygame.display.set_mode((500, 500))
-sfondo             = pygame.transform.scale(pygame.image.load("sfondo.png").convert(),            (500, 500))
+sfondogiorno             = pygame.transform.scale(pygame.image.load("sfondo.png").convert(),            (500, 500))
+sfondonotte= pygame.transform.scale(pygame.image.load("sfondonotte.png").convert(),            (500, 500))
 sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittico.png").convert(),(500, 500))
-base               = pygame.transform.scale(pygame.image.load("base.png").convert(),              (600, 100))
+base2               = pygame.transform.scale(pygame.image.load("base2.png").convert(),              (600, 100))
 uccello  = pygame.image.load("uccello.png")
 tuboGiu  = pygame.image.load("tubo.png")
 tuboSu   = pygame.transform.flip(tuboGiu, False, True)
 gameover = pygame.image.load("gameover.png")
 font     = pygame.font.SysFont('Comic Sans MS', 32)
+sfondo_corrente = sfondogiorno
 
 # ── Costanti / Globali ────────────────────────────────────────────────────────
 VEL_AVANZ    = 3
@@ -29,7 +31,7 @@ punteggio_massimo_livello = 30
 punteggio = 0
 uccelloy = 200
 uccello_vely = 3
-basex = 0
+base2x = 0
 tubi: list = []
 
 # ── Salvataggio progressi ─────────────────────────────────────────────────────
@@ -131,18 +133,18 @@ def aggiorna():
 
 
 def disegna():
-    schermo.blit(sfondoApocalittico if gravita_invertita else sfondo, (0, 0))
+    schermo.blit(sfondo_corrente, (0, 0))
     for tubo in tubi:
         disegna_tubo(tubo)
-    schermo.blit(base, (basex, 400))
+    schermo.blit(base2, (base2x, 400))
     schermo.blit(uccello, (60, uccelloy))
     schermo.blit(font.render(f"Punteggio: {int(punteggio)}", True, (255, 255, 255)), (180, 10))
     pygame.display.flip()
 
 
 def inizializza():
-    global uccelloy, uccello_vely, basex, tubi, punteggio, gravita_invertita
-    basex         = 0
+    global uccelloy, uccello_vely, base2x, tubi, punteggio, gravita_invertita
+    base2x         = 0
     uccelloy      = 200
     uccello_vely  = 3
     punteggio     = 0
@@ -168,7 +170,7 @@ def hai_perso():
 
 
 def hai_vinto():
-    schermo.blit(sfondo, (0, 0))
+    schermo.blit(sfondogiorno, (0, 0))
     schermo.blit(font.render("Hai vinto!", True, (255, 255, 255)), (200, 10))
     aggiorna()
     while True:
@@ -183,55 +185,71 @@ def hai_vinto():
 # ── Livelli ───────────────────────────────────────────────────────────────────
 
 def _vel_livello(n):
-    """Velocità base della base per il livello n."""
+    """Velocità base2 della base2 per il livello n."""
     return VEL_AVANZ + n      # n = 1 o 2
-
-
+        
 def livello1():
-    global uccelloy, uccello_vely, basex, livello_corrente, punteggio_massimo_livello
-    livello_corrente          = 1
+    global uccelloy, uccello_vely, base2x
+    global livello_corrente, punteggio_massimo_livello
+    global sfondo_corrente
+
+    livello_corrente = 1
     punteggio_massimo_livello = 30
     vel = _vel_livello(1)
+
     inizializza()
 
+    # Sfondo iniziale
+    sfondo_corrente = sfondogiorno
+
     while True:
+        # Movimento tubi
         for tubo in tubi:
             muovi_tubo(tubo)
-
-        global basex
-        basex -= vel
-        if basex < -45:
-            basex = 0
-
+        # Movimento base
+        base2x -= vel
+        if base2x < -45:
+            base2x = 0
         uccello_vely += 1
-        uccelloy     += uccello_vely
-
+        uccelloy += uccello_vely
         aggiorna_punteggio()
 
-        # Ricicla tubi
+        # cambio sfondo
+        if punteggio >= 20:
+            sfondo_corrente = sfondonotte
+
+        # Riciclo tubi
         if tubi and tubi[0]['x'] < -60:
-            tubi.pop(0); tubi.pop(0)
+            tubi.pop(0)
+            tubi.pop(0)
             ultima_x = tubi[-1]['x'] if len(tubi) >= 2 else 500
             tubi.extend(crea_coppia_tubi(ultima_x + 250))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit(); sys.exit()
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 uccello_vely = -10
 
-        ul, ua = uccello.get_width(), uccello.get_height()
+        ul = uccello.get_width()
+        ua = uccello.get_height()
 
+        # Collisioni con bordo
         if uccelloy >= 390 or uccelloy <= 10:
             hai_perso()
-            inizializza()       # ricomincia il livello dopo la schermata game-over
+            inizializza()
+            sfondo_corrente = sfondogiorno  # reset sfondo
 
+        # Collisioni con tubi
         for tubo in tubi:
             if controlla_collisione(60, uccelloy, ul, ua, tubo):
                 hai_perso()
                 inizializza()
+                sfondo_corrente = sfondogiorno
                 break
 
+        # Vittoria
         if punteggio >= 30:
             hai_vinto()
             return
@@ -239,9 +257,10 @@ def livello1():
         disegna()
         aggiorna()
 
-
 def livello2():
-    global uccelloy, uccello_vely, basex, gravita_invertita
+    global sfondo_corrente
+    sfondo_corrente = sfondogiorno
+    global uccelloy, uccello_vely, base2x, gravita_invertita
     global livello_corrente, punteggio_massimo_livello
     livello_corrente          = 2
     punteggio_massimo_livello = 70
@@ -252,10 +271,10 @@ def livello2():
         for tubo in tubi:
             muovi_tubo(tubo)
 
-        global basex
-        basex -= vel
-        if basex < -45:
-            basex = 0
+        global base2x
+        base2x -= vel
+        if base2x < -45:
+            base2x = 0
 
         uccello_vely += -1 if gravita_invertita else 1
         uccelloy     += uccello_vely
@@ -287,6 +306,7 @@ def livello2():
 
         if punteggio >= 20 and not gravita_invertita:
             invertiGravita()
+            sfondo_corrente = sfondoApocalittico
 
         if punteggio >= 70:
             hai_vinto()
@@ -307,7 +327,7 @@ def menu():
         progresso_livello1 = progressi[0]
         progresso_livello2 = progressi[1]
 
-        schermo.blit(sfondo, (0, 0))
+        schermo.blit(sfondogiorno, (0, 0))
         mouse_x, mouse_y = pygame.mouse.get_pos()
 
         # Titolo
