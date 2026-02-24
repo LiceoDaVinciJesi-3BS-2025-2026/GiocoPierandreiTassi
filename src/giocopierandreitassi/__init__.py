@@ -4,47 +4,49 @@ import sys
 
 pygame.init()
 
-# ── Risorse ──────────────────────────────────────────────────────────────────
+# ── Schermo ─────────────────────────────────────────────
 schermo = pygame.display.set_mode((500, 500))
-sfondogiorno             = pygame.transform.scale(pygame.image.load("sfondo.png").convert(),            (500, 500))
-sfondonotte= pygame.transform.scale(pygame.image.load("sfondonotte.png").convert(),            (500, 500))
-sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittico.png").convert(),(500, 500))
-base2               = pygame.transform.scale(pygame.image.load("base2.png").convert(),              (600, 100))
-uccello  = pygame.image.load("uccello.png")
-tuboGiu  = pygame.image.load("tubo.png")
-tuboSu   = pygame.transform.flip(tuboGiu, False, True)
-gameover = pygame.image.load("gameover.png")
-font     = pygame.font.SysFont('Comic Sans MS', 32)
-sfondo_corrente = sfondogiorno
+pygame.display.set_caption("Flappy Game")
 
-# ── Costanti / Globali ────────────────────────────────────────────────────────
-VEL_AVANZ    = 3
-FPS          = 60
-clock_globale = pygame.time.Clock()          # UN solo Clock riusato ovunque
+# ── Risorse ─────────────────────────────────────────────
+sfondogiorno = pygame.transform.scale(pygame.image.load("sfondo.png").convert(), (500, 500))
+sfondonotte = pygame.transform.scale(pygame.image.load("sfondonotte.png").convert(), (500, 500))
+sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittico.png").convert(), (500, 500))
+
+base2 = pygame.transform.scale(pygame.image.load("base2.png").convert(), (600, 100))
+uccello_img = pygame.image.load("uccello.png")
+tuboGiu = pygame.image.load("tubo.png")
+tuboSu = pygame.transform.flip(tuboGiu, False, True)
+gameover = pygame.image.load("gameover.png")
+
+font = pygame.font.SysFont("Comic Sans MS", 32)
+titolo_font = pygame.font.SysFont("Comic Sans MS", 48)
+
+# ── Costanti ─────────────────────────────────────────────
+VEL_AVANZ = 3
+FPS = 60
+clock = pygame.time.Clock()
 
 SALVATAGGIO_FILE = "progressioneLivello.txt"
 
-# Stato di gioco
-gravita_invertita       = False
-livello_corrente        = 1
+# ── Variabili globali ────────────────────────────────────
+gravita_invertita = False
+livello_corrente = 1
 punteggio_massimo_livello = 30
+
 punteggio = 0
 uccelloy = 200
-uccello_vely = 3
+uccello_vely = 0
 base2x = 0
-tubi: list = []
+tubi = []
+sfondo_corrente = sfondogiorno
 
-# ── Salvataggio progressi ─────────────────────────────────────────────────────
-
+# ── Salvataggio ──────────────────────────────────────────
 def carica_progressi():
-    """Legge le percentuali dal file. Restituisce [perc_liv1, perc_liv2]."""
     try:
         with open(SALVATAGGIO_FILE, "r") as f:
             righe = f.readlines()
-        progressi = []
-        for riga in righe:
-            riga = riga.strip()
-            progressi.append(int(riga) if riga.isdigit() else 0)
+        progressi = [int(r.strip()) if r.strip().isdigit() else 0 for r in righe]
         while len(progressi) < 2:
             progressi.append(0)
         return progressi
@@ -52,16 +54,12 @@ def carica_progressi():
         salva_progressi([0, 0])
         return [0, 0]
 
-
 def salva_progressi(progressi):
-    """Scrive le percentuali nel file, una per riga."""
     with open(SALVATAGGIO_FILE, "w") as f:
         for p in progressi:
             f.write(f"{p}\n")
 
-
 def aggiorna_progresso_livello(numero_livello, punteggio_attuale, punteggio_massimo):
-    """Aggiorna la percentuale solo se migliorativa."""
     progressi = carica_progressi()
     nuova_percentuale = min(int((punteggio_attuale / punteggio_massimo) * 100), 100)
     indice = numero_livello - 1
@@ -69,415 +67,260 @@ def aggiorna_progresso_livello(numero_livello, punteggio_attuale, punteggio_mass
         progressi[indice] = nuova_percentuale
         salva_progressi(progressi)
 
-# ── Utilità ───────────────────────────────────────────────────────────────────
-
-def invertiGravita():
-    global gravita_invertita, uccello_capovolto
-    gravita_invertita = not gravita_invertita
-
-
-def crea_coppia_tubi(x):
-    spazio    = 200
-    y_apertura = random.randint(100, 250)
-    tubo_superiore = {
-        'x': x, 'y': 0,
-        'altezza': y_apertura - spazio // 2,
-        'tipo': 'superiore',
-        'larghezza': tuboSu.get_width(),
-        'punteggiato': False,
-    }
-    tubo_inferiore = {
-        'x': x,
-        'y': y_apertura + spazio // 2,
-        'altezza': 500 - (y_apertura + spazio // 2),
-        'tipo': 'inferiore',
-        'larghezza': tuboGiu.get_width(),
-        'punteggiato': False,
-    }
-    return [tubo_superiore, tubo_inferiore]
-
-
-def muovi_tubo(tubo):
-    tubo['x'] -= VEL_AVANZ
-
-
-def disegna_tubo(tubo):
-    if tubo['tipo'] == 'superiore':
-        schermo.blit(pygame.transform.scale(tuboSu, (tubo['larghezza'], tubo['altezza'])),
-                     (tubo['x'], tubo['y']))
-    else:
-        schermo.blit(pygame.transform.scale(tuboGiu, (tubo['larghezza'], tubo['altezza'])),
-                     (tubo['x'], tubo['y']))
-
-
-def controlla_collisione(ux, uy, ul, ua, tubo):
-    return (ux + ul > tubo['x'] and
-            ux < tubo['x'] + tubo['larghezza'] and
-            uy + ua > tubo['y'] and
-            uy < tubo['y'] + tubo['altezza'])
-
-
-def aggiorna_punteggio():
-    global punteggio
-    for tubo in tubi:
-        if tubo['x'] + tubo['larghezza'] < 60 and not tubo['punteggiato']:
-            punteggio += 0.5
-            tubo['punteggiato'] = True
-            aggiorna_progresso_livello(livello_corrente, punteggio, punteggio_massimo_livello)
-
-
-def aggiorna():
-    """Aggiorna lo schermo e limita gli FPS."""
-    pygame.display.update()
-    clock_globale.tick(FPS)          # ← Clock riusato, limita davvero gli FPS
-
-
-def disegna():
-    schermo.blit(sfondo_corrente, (0, 0))
-    for tubo in tubi:
-        disegna_tubo(tubo)
-    schermo.blit(base2, (base2x, 400))
-    schermo.blit(uccello, (60, uccelloy))
-    schermo.blit(font.render(f"Punteggio: {int(punteggio)}", True, (255, 255, 255)), (180, 10))
-    pygame.display.flip()
-
-
+# ── Utility ──────────────────────────────────────────────
 def inizializza():
     global uccelloy, uccello_vely, base2x, tubi, punteggio, gravita_invertita
-    base2x         = 0
-    uccelloy      = 200
-    uccello_vely  = 3
-    punteggio     = 0
+
+    base2x = 0
+    uccelloy = 200
+    uccello_vely = 0
+    punteggio = 0
     gravita_invertita = False
+
     tubi = []
     tubi.extend(crea_coppia_tubi(500))
     tubi.extend(crea_coppia_tubi(750))
 
-# ── Schermate ─────────────────────────────────────────────────────────────────
+def crea_coppia_tubi(x):
+    spazio = 200
+    y_apertura = random.randint(120, 300)
+
+    tubo_superiore = {
+        "x": x,
+        "y": 0,
+        "altezza": y_apertura - spazio // 2,
+        "tipo": "superiore",
+        "larghezza": tuboSu.get_width(),
+        "punteggiato": False
+    }
+
+    tubo_inferiore = {
+        "x": x,
+        "y": y_apertura + spazio // 2,
+        "altezza": 500 - (y_apertura + spazio // 2),
+        "tipo": "inferiore",
+        "larghezza": tuboGiu.get_width(),
+        "punteggiato": False
+    }
+
+    return [tubo_superiore, tubo_inferiore]
+
+def muovi_tubi():
+    for tubo in tubi:
+        tubo["x"] -= VEL_AVANZ
+
+def controlla_collisione(rect_uccello, tubo):
+    rect_tubo = pygame.Rect(tubo["x"], tubo["y"], tubo["larghezza"], tubo["altezza"])
+    return rect_uccello.colliderect(rect_tubo)
+
+def aggiorna_punteggio():
+    global punteggio
+    for tubo in tubi:
+        if tubo["tipo"] == "inferiore":
+            if tubo["x"] + tubo["larghezza"] < 60 and not tubo["punteggiato"]:
+                punteggio += 1
+                tubo["punteggiato"] = True
+                aggiorna_progresso_livello(livello_corrente, punteggio, punteggio_massimo_livello)
+
+def disegna():
+    schermo.blit(sfondo_corrente, (0, 0))
+
+    for tubo in tubi:
+        img = tuboSu if tubo["tipo"] == "superiore" else tuboGiu
+        img_scalata = pygame.transform.scale(img, (tubo["larghezza"], tubo["altezza"]))
+        schermo.blit(img_scalata, (tubo["x"], tubo["y"]))
+
+    schermo.blit(base2, (base2x, 400))
+    schermo.blit(uccello_img, (60, uccelloy))
+    schermo.blit(font.render(f"Punteggio: {punteggio}", True, (255,255,255)), (170, 10))
+
+    pygame.display.flip()
 
 def hai_perso():
-    schermo.blit(gameover, (160, 200))
-    aggiorna()
+    schermo.blit(gameover, (150, 200))
+    pygame.display.flip()
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    return          # il livello chiamerà inizializza() e ripartirà
+                    return
                 if event.key == pygame.K_ESCAPE:
                     menu(); return
 
-
 def hai_vinto():
-    schermo.blit(sfondogiorno, (0, 0))
-    schermo.blit(font.render("Hai vinto!", True, (255, 255, 255)), (200, 10))
+    schermo.blit(sfondogiorno, (0,0))
+    testo = font.render("HAI VINTO!", True, (255,255,255))
+    schermo.blit(testo, (150, 200))
+    pygame.display.flip()
 
-def inizializza():
-    global uccelloy, uccello_vely, basex, tubi, punteggio, gravita_invertita
-    basex = 0
-    uccelloy = 200
-    uccello_vely = 3
-    punteggio = 0
-    gravita_invertita = False
-    # Crea le coppie di tubi
-    tubi = []
-    coppia1 = crea_coppia_tubi(500)
-    coppia2 = crea_coppia_tubi(750)
-    
-    tubi.extend(coppia1)
-    tubi.extend(coppia2)
-
-def hai_vinto(): # Mostra la schermata di vittoria e torna al menu
-    schermo.blit(sfondo, (0, 0))  # Schermo nero per indicare la vittoria
-    testo_vittoria = font.render("Hai vinto!", True, (255, 255, 255))
-    schermo.blit(testo_vittoria, (200, 10))
-    testo_menu = font.render("TORNA AL MENU", True, (255, 255, 255))
-    
-    aggiorna()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                menu(); return
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                menu(); return
+            if event.type == pygame.KEYDOWN:
+                return
+#-----------------------------------------------------------------------------------------------------------
+#------------------------------------------ Livello 1 ------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------
 
-# ── Livelli ───────────────────────────────────────────────────────────────────
-
-def _vel_livello(n):
-    """Velocità base2 della base2 per il livello n."""
-    return VEL_AVANZ + n      # n = 1 o 2
-        
 def livello1():
     global uccelloy, uccello_vely, base2x
-    global livello_corrente, punteggio_massimo_livello
-    global sfondo_corrente
+    global livello_corrente, punteggio_massimo_livello, sfondo_corrente
 
     livello_corrente = 1
     punteggio_massimo_livello = 30
-    vel = _vel_livello(1)
+    sfondo_corrente = sfondogiorno
 
     inizializza()
 
-    # Sfondo iniziale
-    sfondo_corrente = sfondogiorno
-
     while True:
-        # Movimento tubi
-        for tubo in tubi:
-            muovi_tubo(tubo)
-        # Movimento base
-        base2x -= vel
+        clock.tick(FPS)
+
+        muovi_tubi()
+
+        base2x -= VEL_AVANZ
         if base2x < -45:
             base2x = 0
-        uccello_vely += 1
-        uccelloy += uccello_vely
-        aggiorna_punteggio()
 
-        # cambio sfondo
+        uccello_vely += 0.5
+        uccelloy += uccello_vely
+
         if punteggio >= 20:
             sfondo_corrente = sfondonotte
 
-        # Riciclo tubi
-        if tubi and tubi[0]['x'] < -60:
-            tubi.pop(0)
-            tubi.pop(0)
-            ultima_x = tubi[-1]['x'] if len(tubi) >= 2 else 500
+        aggiorna_punteggio()
+
+        if tubi[0]["x"] < -60:
+            tubi.pop(0); tubi.pop(0)
+            ultima_x = tubi[-1]["x"]
             tubi.extend(crea_coppia_tubi(ultima_x + 250))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                pygame.quit(); sys.exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 uccello_vely = -10
 
-        ul = uccello.get_width()
-        ua = uccello.get_height()
+        rect_uccello = pygame.Rect(60, uccelloy, uccello_img.get_width(), uccello_img.get_height())
 
-        # Collisioni con bordo
-        if uccelloy >= 390 or uccelloy <= 10:
-            hai_perso()
-            inizializza()
-            sfondo_corrente = sfondogiorno  # reset sfondo
+        if uccelloy >= 390 or uccelloy <= 0:
+            hai_perso(); inizializza()
 
-        # Collisioni con tubi
         for tubo in tubi:
-            if controlla_collisione(60, uccelloy, ul, ua, tubo):
-                hai_perso()
-                inizializza()
-                sfondo_corrente = sfondogiorno
+            if controlla_collisione(rect_uccello, tubo):
+                hai_perso(); inizializza()
                 break
 
-        # Vittoria
         if punteggio >= 30:
-            hai_vinto()
-            return
+            hai_vinto(); return
 
         disegna()
-        aggiorna()
+#--------------------------------------------------------------------------------------------------------
+# ─--------------------------------------------- Livello 2 ----------------------------------------------
+#--------------------------------------------------------------------------------------------------------ù
 
 def livello2():
-    global sfondo_corrente
-    sfondo_corrente = sfondogiorno
-    global uccelloy, uccello_vely, base2x, gravita_invertita
-    global livello_corrente, punteggio_massimo_livello
-    livello_corrente          = 2
+    global gravita_invertita, livello_corrente, punteggio_massimo_livello
+    global uccelloy, uccello_vely, base2x, sfondo_corrente
+
+    livello_corrente = 2
     punteggio_massimo_livello = 70
-    vel = _vel_livello(2)
+    sfondo_corrente = sfondoApocalittico
+
     inizializza()
 
-
-    running = True  
-    
-    while running: 
-        # Muovi i tubi
-        for tubo in tubi:
-            muovi_tubo(tubo)
-        
-        basex -= VEL_AVANZ + livello
-        if basex < -45:
-            basex = 0
-        
-        if gravita_invertita:
-            #uccello = pygame.transform.flip(uccello, False, True)
-            uccello_vely -= 1
-        else:
-            uccello_vely += 1
-
-        uccelloy += uccello_vely
-
-        # Aggiorna il punteggio
-        aggiorna_punteggio()
-
-
-        
-        # Rimuovi le coppie uscite e aggiungine di nuove
-        if len(tubi) > 0 and tubi[0]['x'] < -60:
-            tubi.pop(0)
-            tubi.pop(0)
-            
-            if len(tubi) >= 2:
-                ultima_x = tubi[-1]['x']
-            else:
-                ultima_x = 500
-                
-            nuova_coppia = crea_coppia_tubi(ultima_x + 250)
-            tubi.extend(nuova_coppia)
-
-        # Gestione eventi
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                if gravita_invertita:
-                    uccello_vely = 10  # Spinta verso il basso quando la gravità è invertita
-                else:
-                    uccello_vely = -10  # Spinta verso l'alto (normale)
-                
-            if event.type == pygame.QUIT:
-                running = False
-                pygame.quit()
-                sys.exit()
-        
-        # Dimensioni dell'uccello
-        uccello_largh = uccello.get_width()
-        uccello_alt = uccello.get_height()
-        
-        # Verifica collisione con base o soffitto
-        if uccelloy >= 390 or uccelloy <= 10:
-            hai_perso()
-        
-        # Verifica collisione con i tubi
-        for tubo in tubi:
-            if controlla_collisione(60, uccelloy, uccello_largh, uccello_alt, tubo):
-                hai_perso()
-                break
-        
-        if punteggio >= 20 and not gravita_invertita:
-            invertiGravita()
-
-
-        if punteggio >= 70:  # Condizione per vincere
-            hai_vinto()
-            return
-            
-        disegna()
-        aggiorna()
-
-def menu():
-    clock = pygame.time.Clock()
-
-    # Percentuali di completamento (modifica in futuro se salvi i progressi)
-    progresso_livello1 = min(int((punteggio / 30) * 100), 100) if 'punteggio' in globals() else 0
-    progresso_livello2 = min(int((punteggio / 70) * 100), 100) if 'punteggio' in globals() else 0
-
     while True:
-        for tubo in tubi:
-            muovi_tubo(tubo)
+        clock.tick(FPS)
 
-        global base2x
-        base2x -= vel
+        muovi_tubi()
+
+        base2x -= VEL_AVANZ + 1
         if base2x < -45:
             base2x = 0
 
-        uccello_vely += -1 if gravita_invertita else 1
-        uccelloy     += uccello_vely
+        if gravita_invertita:
+            uccello_vely -= 0.5
+        else:
+            uccello_vely += 0.5
+
+        uccelloy += uccello_vely
 
         aggiorna_punteggio()
 
-        if tubi and tubi[0]['x'] < -60:
+        if punteggio >= 20 and not gravita_invertita:
+            gravita_invertita = True
+
+        if tubi[0]["x"] < -60:
             tubi.pop(0); tubi.pop(0)
-            ultima_x = tubi[-1]['x'] if len(tubi) >= 2 else 500
+            ultima_x = tubi[-1]["x"]
             tubi.extend(crea_coppia_tubi(ultima_x + 250))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                uccello_vely = 10 if gravita_invertita else -10
+                if gravita_invertita:
+                    uccello_vely = 10
+                else:
+                    uccello_vely = -10
 
-        ul, ua = uccello.get_width(), uccello.get_height()
+        rect_uccello = pygame.Rect(60, uccelloy, uccello_img.get_width(), uccello_img.get_height())
 
-        if uccelloy >= 390 or uccelloy <= 10:
-            hai_perso()
-            inizializza()
+        if uccelloy >= 390 or uccelloy <= 0:
+            hai_perso(); inizializza()
 
         for tubo in tubi:
-            if controlla_collisione(60, uccelloy, ul, ua, tubo):
-                hai_perso()
-                inizializza()
+            if controlla_collisione(rect_uccello, tubo):
+                hai_perso(); inizializza()
                 break
 
-        if punteggio >= 20 and not gravita_invertita:
-            invertiGravita()
-            sfondo_corrente = sfondoApocalittico
-
         if punteggio >= 70:
-            hai_vinto()
-            return
+            hai_vinto(); return
 
         disegna()
-        aggiorna()
 
-# ── Menu ──────────────────────────────────────────────────────────────────────
-
+# ── Menu ─────────────────────────────────────────────────
 def menu():
-    titolo_font = pygame.font.SysFont('Comic Sans MS', 48)
     barra_larg, barra_alt = 200, 14
 
     while True:
-        # Rilegge sempre dal file → percentuali aggiornate dopo ogni partita
-        progressi          = carica_progressi()
-        progresso_livello1 = progressi[0]
-        progresso_livello2 = progressi[1]
+        progressi = carica_progressi()
 
-        schermo.blit(sfondogiorno, (0, 0))
-        mouse_x, mouse_y = pygame.mouse.get_pos()
+        schermo.blit(sfondogiorno, (0,0))
+        schermo.blit(titolo_font.render("FLAPPY GAME", True, (255,255,255)), (120,40))
 
-        # Titolo
-        schermo.blit(titolo_font.render("FLAPPY GAME", True, (255, 255, 255)), (120, 40))
+        mouse = pygame.mouse.get_pos()
 
-        # ── Livello 1 ──
-        r1     = pygame.Rect(110, 150, 280, 90)
-        colore1 = (70, 150, 255) if r1.collidepoint(mouse_x, mouse_y) else (40, 90, 200)
-        pygame.draw.rect(schermo, colore1, r1, border_radius=15)
-        schermo.blit(font.render("Livello 1", True, (255, 255, 255)), (r1.x + 20, r1.y + 10))
+        r1 = pygame.Rect(110,150,280,90)
+        r2 = pygame.Rect(110,280,280,90)
 
-        bx1, by1 = r1.x + 20, r1.y + 50
-        pygame.draw.rect(schermo, (120, 120, 120), (bx1, by1, barra_larg, barra_alt), border_radius=7)
-        pygame.draw.rect(schermo, (0, 220, 0),
-                         (bx1, by1, barra_larg * progresso_livello1 // 100, barra_alt),
-                         border_radius=7)
-        schermo.blit(font.render(f"{progresso_livello1}%", True, (255, 255, 255)),
-                     (bx1 + barra_larg + 10, by1 - 5))
+        pygame.draw.rect(schermo,(40,90,200),r1,border_radius=15)
+        pygame.draw.rect(schermo,(200,90,40),r2,border_radius=15)
 
-        # ── Livello 2 ──
-        r2     = pygame.Rect(110, 280, 280, 90)
-        colore2 = (255, 140, 80) if r2.collidepoint(mouse_x, mouse_y) else (200, 90, 40)
-        pygame.draw.rect(schermo, colore2, r2, border_radius=15)
-        schermo.blit(font.render("Livello 2", True, (255, 255, 255)), (r2.x + 20, r2.y + 10))
+        schermo.blit(font.render("Livello 1",True,(255,255,255)),(r1.x+20,r1.y+10))
+        schermo.blit(font.render("Livello 2",True,(255,255,255)),(r2.x+20,r2.y+10))
 
-        bx2, by2 = r2.x + 20, r2.y + 50
-        pygame.draw.rect(schermo, (120, 120, 120), (bx2, by2, barra_larg, barra_alt), border_radius=7)
-        pygame.draw.rect(schermo, (0, 220, 0),
-                         (bx2, by2, barra_larg * progresso_livello2 // 100, barra_alt),
-                         border_radius=7)
-        schermo.blit(font.render(f"{progresso_livello2}%", True, (255, 255, 255)),
-                     (bx2 + barra_larg + 10, by2 - 5))
+        # Barre progresso
+        pygame.draw.rect(schermo,(120,120,120),(r1.x+20,r1.y+50,barra_larg,barra_alt))
+        pygame.draw.rect(schermo,(0,220,0),(r1.x+20,r1.y+50,barra_larg*progressi[0]//100,barra_alt))
+
+        pygame.draw.rect(schermo,(120,120,120),(r2.x+20,r2.y+50,barra_larg,barra_alt))
+        pygame.draw.rect(schermo,(0,220,0),(r2.x+20,r2.y+50,barra_larg*progressi[1]//100,barra_alt))
 
         pygame.display.flip()
-        clock_globale.tick(60)
+        clock.tick(FPS)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 if r1.collidepoint(event.pos):
-                    livello1(); return
+                    livello1()
                 if r2.collidepoint(event.pos):
-                    livello2(); return
+                    livello2()
 
-
-# ── Avvio ─────────────────────────────────────────────────────────────────────
+# ── Avvio ────────────────────────────────────────────────
 menu()
