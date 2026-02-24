@@ -14,7 +14,12 @@ sfondonotte = pygame.transform.scale(pygame.image.load("sfondonotte.png").conver
 sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittico.png").convert(), (500, 500))
 
 base2 = pygame.transform.scale(pygame.image.load("base2.png").convert(), (600, 100))
-uccello_img = pygame.image.load("uccello.png")
+
+uccello_base = pygame.image.load("uccello.png").convert_alpha()
+rainbow_skin = pygame.image.load("rainbowdash.png").convert_alpha()
+
+rainbow_skin = pygame.transform.scale(rainbow_skin, (70, 70))
+
 tuboGiu = pygame.image.load("tubo.png")
 tuboSu = pygame.transform.flip(tuboGiu, False, True)
 gameover = pygame.image.load("gameover.png")
@@ -220,7 +225,7 @@ def livello1():
         disegna()
 #--------------------------------------------------------------------------------------------------------
 # ─--------------------------------------------- Livello 2 ----------------------------------------------
-#--------------------------------------------------------------------------------------------------------ù
+#--------------------------------------------------------------------------------------------------------
 
 def livello2():
     global gravita_invertita, livello_corrente, punteggio_massimo_livello
@@ -282,45 +287,67 @@ def livello2():
 
         disegna()
 
-# ── Menu ─────────────────────────────────────────────────
 def menu():
-    barra_larg, barra_alt = 200, 14
+    global uccello_img
+    schermata = "menu"
+
+    # Rettangoli menu e skin
+    r1 = pygame.Rect(110,150,280,90)
+    r2 = pygame.Rect(110,280,280,90)
+    r_skin = pygame.Rect(110,400,280,60)
 
     while True:
-        progressi = carica_progressi()
-
         schermo.blit(sfondogiorno, (0,0))
-        schermo.blit(titolo_font.render("FLAPPY GAME", True, (255,255,255)), (120,40))
 
         mouse = pygame.mouse.get_pos()
 
-        r1 = pygame.Rect(110,150,280,90)
-        r2 = pygame.Rect(110,280,280,90)
+        if schermata == "menu":
 
-        pygame.draw.rect(schermo,(40,90,200),r1,border_radius=15)
-        pygame.draw.rect(schermo,(200,90,40),r2,border_radius=15)
+            # Pulsanti
+            pygame.draw.rect(schermo,(40,90,200),r1,border_radius=15)
+            pygame.draw.rect(schermo,(200,90,40),r2,border_radius=15)
+            pygame.draw.rect(schermo,(90,40,200),r_skin,border_radius=15)
 
-        schermo.blit(font.render("Livello 1",True,(255,255,255)),(r1.x+20,r1.y+10))
-        schermo.blit(font.render("Livello 2",True,(255,255,255)),(r2.x+20,r2.y+10))
+            schermo.blit(font.render("Livello 1",True,(255,255,255)),(r1.x+20,r1.y+10))
+            schermo.blit(font.render("Livello 2",True,(255,255,255)),(r2.x+20,r2.y+10))
+            schermo.blit(font.render("Skin",True,(255,255,255)),(r_skin.x+90,r_skin.y+15))
 
-        # Barre progresso
-        pygame.draw.rect(schermo,(120,120,120),(r1.x+20,r1.y+50,barra_larg,barra_alt))
-        pygame.draw.rect(schermo,(0,220,0),(r1.x+20,r1.y+50,barra_larg*progressi[0]//100,barra_alt))
+        elif schermata == "skin":
+            schermo.blit(titolo_font.render("Scegli Skin", True, (255,255,255)), (130,40))
 
-        pygame.draw.rect(schermo,(120,120,120),(r2.x+20,r2.y+50,barra_larg,barra_alt))
-        pygame.draw.rect(schermo,(0,220,0),(r2.x+20,r2.y+50,barra_larg*progressi[1]//100,barra_alt))
+            # Posizioni immagini skin
+            rect1 = uccello_base.get_rect(center=(200,250))
+            rect2 = rainbow_skin.get_rect(center=(350,250))
+
+            # Mostra le skin
+            schermo.blit(uccello_base, rect1)
+            schermo.blit(rainbow_skin, rect2)
 
         pygame.display.flip()
         clock.tick(FPS)
 
+        # Eventi
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if r1.collidepoint(event.pos):
-                    livello1()
-                if r2.collidepoint(event.pos):
-                    livello2()
+
+                if schermata == "menu":
+                    if r1.collidepoint(event.pos):
+                        livello1()
+                    elif r2.collidepoint(event.pos):
+                        livello2()
+                    elif r_skin.collidepoint(event.pos):
+                        schermata = "skin"
+
+                elif schermata == "skin":
+                    if rect1.collidepoint(event.pos):
+                        uccello_img = uccello_base
+                        schermata = "menu"
+                    elif rect2.collidepoint(event.pos):
+                        uccello_img = rainbow_skin
+                        schermata = "menu"
 
 # ── Avvio ────────────────────────────────────────────────
 menu()
