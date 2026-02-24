@@ -169,11 +169,10 @@ def hai_perso():
                     menu(); return
 
 
-<<<<<<< Updated upstream
 def hai_vinto():
     schermo.blit(sfondogiorno, (0, 0))
     schermo.blit(font.render("Hai vinto!", True, (255, 255, 255)), (200, 10))
-=======
+
 def inizializza():
     global uccelloy, uccello_vely, basex, tubi, punteggio, gravita_invertita
     basex = 0
@@ -195,7 +194,6 @@ def hai_vinto(): # Mostra la schermata di vittoria e torna al menu
     schermo.blit(testo_vittoria, (200, 10))
     testo_menu = font.render("TORNA AL MENU", True, (255, 255, 255))
     
->>>>>>> Stashed changes
     aggiorna()
     while True:
         for event in pygame.event.get():
@@ -290,8 +288,8 @@ def livello2():
     punteggio_massimo_livello = 70
     vel = _vel_livello(2)
     inizializza()
-<<<<<<< Updated upstream
-=======
+
+
     running = True  
     
     while running: 
@@ -373,7 +371,6 @@ def menu():
     # Percentuali di completamento (modifica in futuro se salvi i progressi)
     progresso_livello1 = min(int((punteggio / 30) * 100), 100) if 'punteggio' in globals() else 0
     progresso_livello2 = min(int((punteggio / 70) * 100), 100) if 'punteggio' in globals() else 0
->>>>>>> Stashed changes
 
     while True:
         for tubo in tubi:
