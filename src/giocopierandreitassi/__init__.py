@@ -72,7 +72,7 @@ def aggiorna_progresso_livello(numero_livello, punteggio_attuale, punteggio_mass
 # ── Utilità ───────────────────────────────────────────────────────────────────
 
 def invertiGravita():
-    global gravita_invertita
+    global gravita_invertita, uccello_capovolto
     gravita_invertita = not gravita_invertita
 
 
@@ -169,9 +169,33 @@ def hai_perso():
                     menu(); return
 
 
+<<<<<<< Updated upstream
 def hai_vinto():
     schermo.blit(sfondogiorno, (0, 0))
     schermo.blit(font.render("Hai vinto!", True, (255, 255, 255)), (200, 10))
+=======
+def inizializza():
+    global uccelloy, uccello_vely, basex, tubi, punteggio, gravita_invertita
+    basex = 0
+    uccelloy = 200
+    uccello_vely = 3
+    punteggio = 0
+    gravita_invertita = False
+    # Crea le coppie di tubi
+    tubi = []
+    coppia1 = crea_coppia_tubi(500)
+    coppia2 = crea_coppia_tubi(750)
+    
+    tubi.extend(coppia1)
+    tubi.extend(coppia2)
+
+def hai_vinto(): # Mostra la schermata di vittoria e torna al menu
+    schermo.blit(sfondo, (0, 0))  # Schermo nero per indicare la vittoria
+    testo_vittoria = font.render("Hai vinto!", True, (255, 255, 255))
+    schermo.blit(testo_vittoria, (200, 10))
+    testo_menu = font.render("TORNA AL MENU", True, (255, 255, 255))
+    
+>>>>>>> Stashed changes
     aggiorna()
     while True:
         for event in pygame.event.get():
@@ -266,6 +290,90 @@ def livello2():
     punteggio_massimo_livello = 70
     vel = _vel_livello(2)
     inizializza()
+<<<<<<< Updated upstream
+=======
+    running = True  
+    
+    while running: 
+        # Muovi i tubi
+        for tubo in tubi:
+            muovi_tubo(tubo)
+        
+        basex -= VEL_AVANZ + livello
+        if basex < -45:
+            basex = 0
+        
+        if gravita_invertita:
+            #uccello = pygame.transform.flip(uccello, False, True)
+            uccello_vely -= 1
+        else:
+            uccello_vely += 1
+
+        uccelloy += uccello_vely
+
+        # Aggiorna il punteggio
+        aggiorna_punteggio()
+
+
+        
+        # Rimuovi le coppie uscite e aggiungine di nuove
+        if len(tubi) > 0 and tubi[0]['x'] < -60:
+            tubi.pop(0)
+            tubi.pop(0)
+            
+            if len(tubi) >= 2:
+                ultima_x = tubi[-1]['x']
+            else:
+                ultima_x = 500
+                
+            nuova_coppia = crea_coppia_tubi(ultima_x + 250)
+            tubi.extend(nuova_coppia)
+
+        # Gestione eventi
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+                if gravita_invertita:
+                    uccello_vely = 10  # Spinta verso il basso quando la gravità è invertita
+                else:
+                    uccello_vely = -10  # Spinta verso l'alto (normale)
+                
+            if event.type == pygame.QUIT:
+                running = False
+                pygame.quit()
+                sys.exit()
+        
+        # Dimensioni dell'uccello
+        uccello_largh = uccello.get_width()
+        uccello_alt = uccello.get_height()
+        
+        # Verifica collisione con base o soffitto
+        if uccelloy >= 390 or uccelloy <= 10:
+            hai_perso()
+        
+        # Verifica collisione con i tubi
+        for tubo in tubi:
+            if controlla_collisione(60, uccelloy, uccello_largh, uccello_alt, tubo):
+                hai_perso()
+                break
+        
+        if punteggio >= 20 and not gravita_invertita:
+            invertiGravita()
+
+
+        if punteggio >= 70:  # Condizione per vincere
+            hai_vinto()
+            return
+            
+        disegna()
+        aggiorna()
+
+def menu():
+    clock = pygame.time.Clock()
+
+    # Percentuali di completamento (modifica in futuro se salvi i progressi)
+    progresso_livello1 = min(int((punteggio / 30) * 100), 100) if 'punteggio' in globals() else 0
+    progresso_livello2 = min(int((punteggio / 70) * 100), 100) if 'punteggio' in globals() else 0
+>>>>>>> Stashed changes
 
     while True:
         for tubo in tubi:
