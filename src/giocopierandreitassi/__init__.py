@@ -1,4 +1,4 @@
-# CLAUDIA = ho già messo le righe di codice per 6 skin ma ancora non ci sono le immagini nella cartella quindi per adesso il gioco non funzionA
+# CLAUDIA=per il momento le altre 4 skin che ho aggiunto sono uguali alla prima, poi troviamo delle altre immagini da metterci
 
 import pygame
 import random
@@ -21,10 +21,10 @@ base2 = pygame.transform.scale(pygame.image.load("base2.png").convert(), (600, 1
 
 skin1 = pygame.image.load("uccello.png").convert_alpha()
 skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (70, 70))
-skin3 = pygame.transform.scale(pygame.image.load("skin3.png").convert_alpha(), (70, 70))
-skin4 = pygame.transform.scale(pygame.image.load("skin4.png").convert_alpha(), (70, 70))
-skin5 = pygame.transform.scale(pygame.image.load("skin5.png").convert_alpha(), (70, 70))
-skin6 = pygame.transform.scale(pygame.image.load("skin6.png").convert_alpha(), (70, 70))
+skin3 = pygame.image.load('skin3.png').convert_alpha()
+skin4 = pygame.image.load('skin4.png').convert_alpha()
+skin5 = pygame.image.load('skin5.png').convert_alpha()
+skin6 = pygame.image.load('skin6.png').convert_alpha()
 
 uccello_img = skin1
 
@@ -257,7 +257,7 @@ def disegna():
 # ═══════════════════════════════════
 
 def livello_base(target_score):
-    global uccelloy, uccello_vely, base2x, punteggio
+    global uccelloy, uccello_vely, base2x, punteggio, sfondo_corrente
 
     inizializza()
 
@@ -273,6 +273,10 @@ def livello_base(target_score):
         uccelloy += uccello_vely
 
         aggiorna_punteggio()
+        
+        # cambia lo sfondo del livello 1 a 15 punti
+        if punteggio >= 15 and livello_corrente == 1:
+            sfondo_corrente = sfondonotte
 
         if tubi[0]["x"] < -60:
             tubi.pop(0); tubi.pop(0)
@@ -320,22 +324,22 @@ def menu():
     r_skin = pygame.Rect(110,410,280,50)
 
     while True:
-        # limita la velocità del cambio di colore del testo
         clock.tick(FPS)
         
-        # Sfondo
-        schermo.blit(sfondogiorno, (0,0))
-
-        # Colore casuale
-        colore = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
-
-        # Ricrea il titolo con il nuovo colore
-        titolo = titolo_font.render("Flappy Game", True, colore)
-
-        # Disegna il titolo
-        schermo.blit(titolo, (130, 40))
         
         if schermata == "menu":
+            # Sfondo
+            schermo.blit(sfondogiorno, (0,0))
+
+            # Colore casuale
+            colore = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
+
+            # Ricrea il titolo con il nuovo colore
+            titolo = titolo_font.render("Flappy Game", True, colore)
+
+            # Disegna il titolo
+            schermo.blit(titolo, (130, 40))
+            
             pygame.draw.rect(schermo,(40,90,200),r1, border_radius=12)
             pygame.draw.rect(schermo,(200,90,40),r2, border_radius=12)
             pygame.draw.rect(schermo,(150,0,150),r3, border_radius=12)
@@ -349,6 +353,7 @@ def menu():
             schermo.blit(font.render("Skin",True,(255,255,255)),(210,420))
 
         elif schermata == "skin":
+            schermo.blit(sfondoApocalittico, (0,0))
             schermo.blit(titolo_font.render("Scegli Skin", True, (255,255,255)), (130,40))
             
             rect1 = skin1.get_rect(center=(130,200))
@@ -374,10 +379,13 @@ def menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if schermata == "menu":
                     if r1.collidepoint(event.pos):
+                        livello_corrente=1
                         livello_base(30)
                     elif r2.collidepoint(event.pos):
+                        livello_corrente=2
                         livello_base(70)
                     elif r3.collidepoint(event.pos):
+                        livello_corrente=3
                         livello_base(None)
                     elif r4.collidepoint(event.pos):
                         mostra_classifica()
@@ -385,11 +393,12 @@ def menu():
                         schermata = "skin"
                         selezionata = uccello_img
                         
-                        # la skin selezionata ha un bordo giallo
-                        for i, skin in enumerate([skin1, skin2, skin3, skin4, skin5, skin6]):
-                            rect = [rect1, rect2, rect3, rect4, rect5, rect6][i]
-                            if skin == selezionata:
-                                pygame.draw.rect(schermo, (255,255,0), rect.inflate(10,10), 3) 
+                        # DA RIVEDERE
+                        #la skin selezionata ha un bordo giallo
+                        #for i, skin in enumerate([skin1, skin2, skin3, skin4, skin5, skin6]):
+                            #rect = [rect1, rect2, rect3, rect4, rect5, rect6][i]
+                            #if skin == selezionata:
+                                #pygame.draw.rect(schermo, (255,255,0), rect.inflate(10,10), 3) 
 
                 elif schermata == "skin":
                     if rect1.collidepoint(event.pos):
