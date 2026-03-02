@@ -1,3 +1,5 @@
+# CLAUDIA = ho già messo le righe di codice per 6 skin ma ancora non ci sono le immagini nella cartella quindi per adesso il gioco non funzionA
+
 import pygame
 import random
 import sys
@@ -17,12 +19,14 @@ sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittic
 
 base2 = pygame.transform.scale(pygame.image.load("base2.png").convert(), (600, 100))
 
-uccello_base = pygame.image.load("uccello.png").convert_alpha()
-rainbow_skin = pygame.transform.scale(
-    pygame.image.load("rainbowdash.png").convert_alpha(), (70, 70)
-)
+skin1 = pygame.image.load("uccello.png").convert_alpha()
+skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (70, 70))
+skin3 = pygame.transform.scale(pygame.image.load("skin3.png").convert_alpha(), (70, 70))
+skin4 = pygame.transform.scale(pygame.image.load("skin4.png").convert_alpha(), (70, 70))
+skin5 = pygame.transform.scale(pygame.image.load("skin5.png").convert_alpha(), (70, 70))
+skin6 = pygame.transform.scale(pygame.image.load("skin6.png").convert_alpha(), (70, 70))
 
-uccello_img = uccello_base
+uccello_img = skin1
 
 tuboGiu = pygame.image.load("tubo.png")
 tuboSu = pygame.transform.flip(tuboGiu, False, True)
@@ -307,7 +311,7 @@ def menu():
     schermata = "menu"
 
     titolo_font = pygame.font.SysFont("Comic Sans MS", 46)
-    titolo = titolo_font.render("Flappy Game", True, (255,255,255))
+
 
     r1 = pygame.Rect(110,130,280,60)
     r2 = pygame.Rect(110,200,280,60)
@@ -346,13 +350,22 @@ def menu():
 
         elif schermata == "skin":
             schermo.blit(titolo_font.render("Scegli Skin", True, (255,255,255)), (130,40))
-            rect1 = uccello_base.get_rect(center=(200,250))
-            rect2 = rainbow_skin.get_rect(center=(350,250))
-            schermo.blit(uccello_base, rect1)
-            schermo.blit(rainbow_skin, rect2)
+            
+            rect1 = skin1.get_rect(center=(130,200))
+            rect2 = skin2.get_rect(center=(250,200))
+            rect3 = skin3.get_rect(center=(370,200))
+            rect4 = skin4.get_rect(center=(130,300))
+            rect5 = skin5.get_rect(center=(250,300))
+            rect6 = skin6.get_rect(center=(370,300))
+
+            schermo.blit(skin1, rect1)
+            schermo.blit(skin2, rect2)
+            schermo.blit(skin3, rect3)
+            schermo.blit(skin4, rect4)
+            schermo.blit(skin5, rect5)
+            schermo.blit(skin6, rect6)
 
         pygame.display.flip()
-        clock.tick(FPS)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -370,13 +383,37 @@ def menu():
                         mostra_classifica()
                     elif r_skin.collidepoint(event.pos):
                         schermata = "skin"
+                        selezionata = uccello_img
+                        
+                        # la skin selezionata ha un bordo giallo
+                        for i, skin in enumerate([skin1, skin2, skin3, skin4, skin5, skin6]):
+                            rect = [rect1, rect2, rect3, rect4, rect5, rect6][i]
+                            if skin == selezionata:
+                                pygame.draw.rect(schermo, (255,255,0), rect.inflate(10,10), 3) 
 
                 elif schermata == "skin":
                     if rect1.collidepoint(event.pos):
-                        uccello_img = uccello_base
+                        uccello_img = skin1
                         schermata = "menu"
+                        
                     elif rect2.collidepoint(event.pos):
-                        uccello_img = rainbow_skin
+                        uccello_img = skin2
+                        schermata = "menu"
+                        
+                    elif rect3.collidepoint(event.pos):
+                        uccello_img = skin3
+                        schermata = "menu"
+
+                    elif rect4.collidepoint(event.pos):
+                        uccello_img = skin4
+                        schermata = "menu"
+
+                    elif rect5.collidepoint(event.pos):
+                        uccello_img = skin5
+                        schermata = "menu"
+
+                    elif rect6.collidepoint(event.pos):
+                        uccello_img = skin6
                         schermata = "menu"
 
 
