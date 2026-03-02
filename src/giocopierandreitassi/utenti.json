@@ -4,5 +4,11 @@
         "livello1": 0,
         "livello2": 0,
         "record_competitive": 3
+    },
+    "Claudia": {
+        "password": "bhoo",
+        "livello1": 0,
+        "livello2": 0,
+        "record_competitive": 0
     }
 }

@@ -316,11 +316,21 @@ def menu():
     r_skin = pygame.Rect(110,410,280,50)
 
     while True:
-        schermata_schermo = sfondogiorno.copy()  # Copia sfondo per pulizia
-        schermata_schermo.blit(titolo, (130, 40))  # Mostra titolo in alto
-        schermo.blit(schermata_schermo, (0,0))
+        # limita la velocità del cambio di colore del testo
+        clock.tick(FPS)
+        
+        # Sfondo
         schermo.blit(sfondogiorno, (0,0))
 
+        # Colore casuale
+        colore = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
+
+        # Ricrea il titolo con il nuovo colore
+        titolo = titolo_font.render("Flappy Game", True, colore)
+
+        # Disegna il titolo
+        schermo.blit(titolo, (130, 40))
+        
         if schermata == "menu":
             pygame.draw.rect(schermo,(40,90,200),r1, border_radius=12)
             pygame.draw.rect(schermo,(200,90,40),r2, border_radius=12)
