@@ -19,12 +19,12 @@ sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittic
 
 base2 = pygame.transform.scale(pygame.image.load("base2.png").convert(), (600, 100))
 
-skin1 = pygame.image.load("uccello.png").convert_alpha()
-skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (70, 70))
-skin3 = pygame.image.load('skin3.png').convert_alpha()
-skin4 = pygame.image.load('skin4.png').convert_alpha()
-skin5 = pygame.image.load('skin5.png').convert_alpha()
-skin6 = pygame.image.load('skin6.png').convert_alpha()
+skin1 = pygame.transform.scale(pygame.image.load("uccello.png").convert_alpha(), (50, 50))
+skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (55, 55))
+skin3 = pygame.transform.scale(pygame.image.load('skin3.png').convert_alpha(), (55, 55))
+skin4 = pygame.transform.scale(pygame.image.load('skin4.png').convert_alpha(), (55, 55))
+skin5 = pygame.transform.scale(pygame.image.load('skin5.png').convert_alpha(), (55, 55))
+skin6 = pygame.transform.scale(pygame.image.load('skin6.png').convert_alpha(), (55, 55))
 
 uccello_img = skin1
 
@@ -316,7 +316,6 @@ def menu():
 
     titolo_font = pygame.font.SysFont("Comic Sans MS", 46)
 
-
     r1 = pygame.Rect(110,130,280,60)
     r2 = pygame.Rect(110,200,280,60)
     r3 = pygame.Rect(110,270,280,60)
@@ -325,7 +324,6 @@ def menu():
 
     while True:
         clock.tick(FPS)
-        
         
         if schermata == "menu":
             # Sfondo
