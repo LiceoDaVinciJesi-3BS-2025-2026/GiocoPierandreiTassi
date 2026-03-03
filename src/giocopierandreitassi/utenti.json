@@ -10,5 +10,11 @@
         "livello1": 0,
         "livello2": 0,
         "record_competitive": 17
+    },
+    "Giorgia": {
+        "password": "ciao",
+        "livello1": 0,
+        "livello2": 0,
+        "record_competitive": 9
     }
 }

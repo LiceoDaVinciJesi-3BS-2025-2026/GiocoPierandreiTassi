@@ -1,5 +1,3 @@
-# CLAUDIA=per il momento le altre 4 skin che ho aggiunto sono uguali alla prima, poi troviamo delle altre immagini da metterci
-
 import pygame
 import random
 import sys
@@ -19,8 +17,8 @@ sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittic
 
 base2 = pygame.transform.scale(pygame.image.load("base2.png").convert(), (600, 100))
 
-skin1 = pygame.transform.scale(pygame.image.load("uccello.png").convert_alpha(), (50, 50))
-skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (55, 55))
+skin1 = pygame.transform.scale(pygame.image.load("uccello.png").convert_alpha(), (40, 40))
+skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (65, 50))
 skin3 = pygame.transform.scale(pygame.image.load('skin3.png').convert_alpha(), (55, 55))
 skin4 = pygame.transform.scale(pygame.image.load('skin4.png').convert_alpha(), (55, 55))
 skin5 = pygame.transform.scale(pygame.image.load('skin5.png').convert_alpha(), (55, 55))
