@@ -18,6 +18,7 @@ skin2                = pygame.transform.scale(pygame.image.load("skin2.png"),  (
 skin3                = pygame.transform.scale(pygame.image.load("skin3.png"),  (skin1.get_width(), skin1.get_height()))
 skin4                = pygame.transform.scale(pygame.image.load("skin4.png"),  (skin1.get_width(), skin1.get_height()))
 skin5                = pygame.transform.scale(pygame.image.load("skin5.png"),  (skin1.get_width(), skin1.get_height()))
+skin6                = pygame.transform.scale(pygame.image.load("skin6.png"),  (skin1.get_width(), skin1.get_height()))
 rotella_impostazioni = pygame.transform.scale(pygame.image.load("rotella.png"), (70, 50))
 base                 = pygame.transform.scale(pygame.image.load("base2.png"),    (400, 100))
 gameover_img         = pygame.image.load("gameover.png")
@@ -216,10 +217,6 @@ def schermata_login():
             err_txt = font_err.render(errore, True, (255, 80, 80))
             schermo.blit(err_txt, (200 - err_txt.get_width() // 2, 375))
 
-        # ── suggerimento ──
-        hint = font_hint.render("Max 16 caratteri, solo lettere e numeri", True, (200, 200, 200))
-        schermo.blit(hint, (200 - hint.get_width() // 2, 400))
-
         pygame.display.update()
         clock.tick(FPS)
 
@@ -356,7 +353,7 @@ def seleziona_skin():
     sx       = 0.0
     font_tit = pygame.font.SysFont("Arial", 24, bold=True)
     font_btn = pygame.font.SysFont("Arial", 20)
-    opzioni  = [skin1, skin2, skin3, skin4, skin5]
+    opzioni  = [skin1, skin2, skin3, skin4, skin5, skin6]
 
     # calcola posizione centrata delle skin nella riga
     n         = len(opzioni)
