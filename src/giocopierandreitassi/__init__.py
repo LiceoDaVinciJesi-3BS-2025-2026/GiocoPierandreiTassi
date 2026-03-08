@@ -1,5 +1,3 @@
-# CLAUDIA=per il momento le altre 4 skin che ho aggiunto sono uguali alla prima, poi troviamo delle altre immagini da metterci
-
 import pygame
 import random
 import sys
@@ -19,8 +17,8 @@ sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittic
 
 base2 = pygame.transform.scale(pygame.image.load("base2.png").convert(), (600, 100))
 
-skin1 = pygame.transform.scale(pygame.image.load("uccello.png").convert_alpha(), (50, 50))
-skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (55, 55))
+skin1 = pygame.transform.scale(pygame.image.load("uccello.png").convert_alpha(), (35, 35))
+skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (55, 65))
 skin3 = pygame.transform.scale(pygame.image.load('skin3.png').convert_alpha(), (55, 55))
 skin4 = pygame.transform.scale(pygame.image.load('skin4.png').convert_alpha(), (55, 55))
 skin5 = pygame.transform.scale(pygame.image.load('skin5.png').convert_alpha(), (55, 55))
@@ -34,6 +32,7 @@ gameover = pygame.image.load("gameover.png")
 
 font = pygame.font.SysFont("Comic Sans MS", 28)
 titolo_font = pygame.font.SysFont("Comic Sans MS", 46)
+istruzioni_font = pygame.font.SysFont('Lucida Console', 20)
 
 # ───────────── COSTANTI ─────────────
 VEL_AVANZ = 3
@@ -44,10 +43,7 @@ UTENTI_FILE = "utenti.json"
 utente_corrente = None
 
 # ───────────── VARIABILI GLOBALI ─────────────
-gravita_invertita = False
-livello_corrente = 1
-punteggio_massimo_livello = 30
-
+livello_corrente = 3
 punteggio = 0
 uccelloy = 200
 uccello_vely = 0
@@ -116,8 +112,6 @@ def login():
                     else:
                         utenti[username] = {
                             "password": password,
-                            "livello1": 0,
-                            "livello2": 0,
                             "record_competitive": 0
                         }
                         salva_utenti(utenti)
@@ -173,8 +167,7 @@ def mostra_classifica():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return
-
-
+                
 # ═══════════════════════════════════
 # LOGICA GIOCO
 # ═══════════════════════════════════
@@ -274,9 +267,12 @@ def livello_base(target_score):
 
         aggiorna_punteggio()
         
-        # cambia lo sfondo del livello 1 a 15 punti
-        if punteggio >= 15 and livello_corrente == 1:
+        # ogni 10 punti lo sfondo cambia e dievnta notte/giorno
+        
+        if punteggio%10==0 and not(punteggio%4==0):
             sfondo_corrente = sfondonotte
+        elif punteggio%10==0 and punteggio%4==0:
+            sfondo_corrente = sfondogiorno
 
         if tubi[0]["x"] < -60:
             tubi.pop(0); tubi.pop(0)
@@ -285,10 +281,17 @@ def livello_base(target_score):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit(); sys.exit()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                uccello_vely = -10
+                pygame.quit()
+                sys.exit()
 
+            if event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_UP:
+                    uccello_vely = -10
+
+                if event.key == pygame.K_ESCAPE:
+                    return
+                
         rect = pygame.Rect(60, uccelloy, uccello_img.get_width(), uccello_img.get_height())
 
         if uccelloy >= 390 or uccelloy <= 0:
@@ -310,17 +313,15 @@ def livello_base(target_score):
 # ═══════════════════════════════════
 
 def menu():
-    global uccello_img, titolo_font, titolo, r1, r2, r3, r4, r_skin 
+    global uccello_img, titolo_font, titolo, r3, r4, r_skin 
 
     schermata = "menu"
 
     titolo_font = pygame.font.SysFont("Comic Sans MS", 46)
 
-    r1 = pygame.Rect(110,130,280,60)
-    r2 = pygame.Rect(110,200,280,60)
-    r3 = pygame.Rect(110,270,280,60)
-    r4 = pygame.Rect(110,340,280,60)
-    r_skin = pygame.Rect(110,410,280,50)
+    r3 = pygame.Rect(110,200,280,60)
+    r4 = pygame.Rect(110,280,280,60)
+    r_skin = pygame.Rect(110,360,280,50)
 
     while True:
         clock.tick(FPS)
@@ -338,22 +339,17 @@ def menu():
             # Disegna il titolo
             schermo.blit(titolo, (130, 40))
             
-            pygame.draw.rect(schermo,(40,90,200),r1, border_radius=12)
-            pygame.draw.rect(schermo,(200,90,40),r2, border_radius=12)
             pygame.draw.rect(schermo,(150,0,150),r3, border_radius=12)
             pygame.draw.rect(schermo,(0,120,0),r4, border_radius=12)
             pygame.draw.rect(schermo,(90,40,200),r_skin, border_radius=12)
 
-            schermo.blit(font.render("Livello 1",True,(255,255,255)),(180,145))
-            schermo.blit(font.render("Livello 2",True,(255,255,255)),(180,215))
-            schermo.blit(font.render("Competitive",True,(255,255,255)),(165,285))
-            schermo.blit(font.render("Classifica",True,(255,255,255)),(175,355))
-            schermo.blit(font.render("Skin",True,(255,255,255)),(210,420))
+            schermo.blit(font.render("Gioca",True,(255,255,255)),(210,205))
+            schermo.blit(font.render("Classifica",True,(255,255,255)),(180,285))
+            schermo.blit(font.render("Skin",True,(255,255,255)),(210,365))
 
         elif schermata == "skin":
-            schermo.blit(sfondoApocalittico, (0,0))
+            schermo.blit(sfondogiorno, (0,0))
             schermo.blit(titolo_font.render("Scegli Skin", True, (255,255,255)), (130,40))
-            
             rect1 = skin1.get_rect(center=(130,200))
             rect2 = skin2.get_rect(center=(250,200))
             rect3 = skin3.get_rect(center=(370,200))
@@ -367,6 +363,14 @@ def menu():
             schermo.blit(skin4, rect4)
             schermo.blit(skin5, rect5)
             schermo.blit(skin6, rect6)
+                
+        elif schermata == 'game':
+            schermo.blit(sfondogiorno, (0,0))
+            schermo.blit(istruzioni_font.render('per volare premi la freccia in', True, (100,100,100)), (20,40))
+            schermo.blit(istruzioni_font.render('alto della tastiera', True, (100,100,100)), (20,60))
+            schermo.blit(istruzioni_font.render('per iniziare a giocare premi Ctrl', True, (100,100,100)), (20,100))
+            schermo.blit(istruzioni_font.render('per tornare al menù premi ESC', True, (100,100,100)), (20,140))
+            schermo.blit(uccello_img, (60, 200))
 
         pygame.display.flip()
 
@@ -375,30 +379,18 @@ def menu():
                 pygame.quit(); sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                
                 if schermata == "menu":
-                    if r1.collidepoint(event.pos):
-                        livello_corrente=1
-                        livello_base(30)
-                    elif r2.collidepoint(event.pos):
-                        livello_corrente=2
-                        livello_base(70)
-                    elif r3.collidepoint(event.pos):
-                        livello_corrente=3
-                        livello_base(None)
+                    if r3.collidepoint(event.pos):
+                        schermata= 'game'
                     elif r4.collidepoint(event.pos):
                         mostra_classifica()
                     elif r_skin.collidepoint(event.pos):
                         schermata = "skin"
                         selezionata = uccello_img
-                        
-                        # DA RIVEDERE
-                        #la skin selezionata ha un bordo giallo
-                        #for i, skin in enumerate([skin1, skin2, skin3, skin4, skin5, skin6]):
-                            #rect = [rect1, rect2, rect3, rect4, rect5, rect6][i]
-                            #if skin == selezionata:
-                                #pygame.draw.rect(schermo, (255,255,0), rect.inflate(10,10), 3) 
-
+                
                 elif schermata == "skin":
+                     
                     if rect1.collidepoint(event.pos):
                         uccello_img = skin1
                         schermata = "menu"
@@ -422,8 +414,14 @@ def menu():
                     elif rect6.collidepoint(event.pos):
                         uccello_img = skin6
                         schermata = "menu"
-
-
+                        
+            if event.type == pygame.KEYDOWN:
+                if schermata == "game":
+                    if event.key == pygame.K_LCTRL:
+                        livello_base(None)
+                    if event.key == pygame.K_ESCAPE:
+                        schermata = "menu"
+                    
 # ───────────── AVVIO ─────────────
 login()
 menu()
