@@ -18,7 +18,7 @@ sfondoApocalittico = pygame.transform.scale(pygame.image.load("SfondoApocalittic
 base2 = pygame.transform.scale(pygame.image.load("base2.png").convert(), (600, 100))
 
 skin1 = pygame.transform.scale(pygame.image.load("uccello.png").convert_alpha(), (35, 35))
-skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (55, 65))
+skin2 = pygame.transform.scale(pygame.image.load("rainbowdash.png").convert_alpha(), (65, 55))
 skin3 = pygame.transform.scale(pygame.image.load('skin3.png').convert_alpha(), (55, 55))
 skin4 = pygame.transform.scale(pygame.image.load('skin4.png').convert_alpha(), (55, 55))
 skin5 = pygame.transform.scale(pygame.image.load('skin5.png').convert_alpha(), (55, 55))
@@ -225,6 +225,11 @@ def aggiorna_punteggio():
                 punteggio += 1
                 tubo["punteggiato"] = True
 
+def mostra_gameover():
+    schermo.blit(gameover, (155, 195))
+    pygame.display.flip()
+    pygame.time.delay(2000)
+    
 def salva_record():
     utenti = carica_utenti()
     if utente_corrente is None:
@@ -296,11 +301,13 @@ def livello_base(target_score):
 
         if uccelloy >= 390 or uccelloy <= 0:
             salva_record()
+            mostra_gameover()
             return
 
         for tubo in tubi:
             if controlla_collisione(rect, tubo):
                 salva_record()
+                mostra_gameover()
                 return
 
         if target_score and punteggio >= target_score:
@@ -327,17 +334,8 @@ def menu():
         clock.tick(FPS)
         
         if schermata == "menu":
-            # Sfondo
             schermo.blit(sfondogiorno, (0,0))
-
-            # Colore casuale
-            colore = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
-
-            # Ricrea il titolo con il nuovo colore
-            titolo = titolo_font.render("Flappy Game", True, colore)
-
-            # Disegna il titolo
-            schermo.blit(titolo, (130, 40))
+            schermo.blit(titolo_font.render('Flappy Game',True,(30,70,225)),(130,40))
             
             pygame.draw.rect(schermo,(150,0,150),r3, border_radius=12)
             pygame.draw.rect(schermo,(0,120,0),r4, border_radius=12)
