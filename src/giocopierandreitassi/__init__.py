@@ -553,7 +553,7 @@ def crea_tubo():
     """
     return {
         "x": 400,                             # parte fuori dallo schermo a destra
-        "y": random.randint(-100, 200)        # altezza casuale del varco
+        "y": random.randint(-30, 170)        # altezza casuale del varco
     }
 
 
@@ -564,8 +564,8 @@ def avanza_e_disegna_tubo(t):
     Il valore +230 / -230 determina l'ampiezza del varco tra i tubi.
     """
     t["x"] -= VEL_AVANZAMENTO
-    schermo.blit(tubo_giu, (t["x"], t["y"] + 230))    # tubo che scende dall'alto
-    schermo.blit(tubo_su,  (t["x"], t["y"] - 230))    # tubo che sale dal basso
+    schermo.blit(tubo_giu, (t["x"], t["y"] + 245))    # tubo che scende dall'alto
+    schermo.blit(tubo_su,  (t["x"], t["y"] - 245))    # tubo che sale dal basso
 
 
 def collisione_tubo(t, ux, uy, ucc):
@@ -583,8 +583,8 @@ def collisione_tubo(t, ux, uy, ucc):
 
     tx_dx  = t["x"] + tubo_giu.get_width()  # bordo destro tubo
     tx_sx  = t["x"]                          # bordo sinistro tubo
-    ty_su  = t["y"] - 230 + tubo_su.get_height()  # bordo inferiore tubo superiore
-    ty_giu = t["y"] + 230                          # bordo superiore tubo inferiore
+    ty_su  = t["y"] - 245 + tubo_su.get_height()  # bordo inferiore tubo superiore
+    ty_giu = t["y"] + 245                          # bordo superiore tubo inferiore
 
     # prima controlla l'allineamento orizzontale, poi quello verticale
     if ux_dx > tx_sx and ux_sx < tx_dx:
