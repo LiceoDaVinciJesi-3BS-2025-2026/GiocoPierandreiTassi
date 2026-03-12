@@ -1,0 +1,4 @@
+- manca la funzione main() nel file __init__ !!! Deve partire tutto da lì!!!
+- codice ben commentato, bravi!
+- supporto al giocatore, molto buono!!!
+- la classifica viene salvata correttamente, le impostazioni non ci sono.

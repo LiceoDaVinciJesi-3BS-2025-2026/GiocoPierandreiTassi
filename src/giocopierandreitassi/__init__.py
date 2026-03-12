@@ -1,8 +1,9 @@
-import pygame
-import random
 import json
 import os
+import random
+from importlib.resources import files
 
+import pygame
 
 # INIZIALIZZAZIONE PYGAME
 pygame.init()
@@ -12,28 +13,51 @@ pygame.init()
 # Ogni immagine viene caricata dal file e ridimensionata se necessario.
 # Le skin sono tutte scalate alla stessa dimensione della skin1 (quella base).
 # ──────────────────────────────────────────────────────────────────────────────
-sfondo               = pygame.transform.scale(pygame.image.load("sfondo.png"), (400, 600))
-skin1                = pygame.image.load("skin1.png")
-skin2                = pygame.transform.scale(pygame.image.load("skin2.png"),  (skin1.get_width(), skin1.get_height()))
-skin3                = pygame.transform.scale(pygame.image.load("skin3.png"),  (skin1.get_width(), skin1.get_height()))
-skin4                = pygame.transform.scale(pygame.image.load("skin4.png"),  (skin1.get_width(), skin1.get_height()))
-skin5                = pygame.transform.scale(pygame.image.load("skin5.png"),  (skin1.get_width(), skin1.get_height()))
-skin6                = pygame.transform.scale(pygame.image.load("skin6.png"),  (skin1.get_width(), skin1.get_height()))
-rotella_impostazioni = pygame.transform.scale(pygame.image.load("rotella.png"), (70, 50))
-base                 = pygame.transform.scale(pygame.image.load("base2.png"),    (400, 100))
-gameover_img         = pygame.image.load("gameover.png")
-tubo_giu             = pygame.image.load("tubo.png")
-tubo_su              = pygame.transform.flip(tubo_giu, False, True)  # tubo capovolto per quello in alto
+sfondo = pygame.transform.scale(
+    pygame.image.load(files("giocopierandreitassi") / "sfondo.png"), (400, 600)
+)
+skin1 = pygame.image.load(files("giocopierandreitassi") / "skin1.png")
+skin2 = pygame.transform.scale(
+    pygame.image.load(files("giocopierandreitassi") / "skin2.png"),
+    (skin1.get_width(), skin1.get_height()),
+)
+skin3 = pygame.transform.scale(
+    pygame.image.load(files("giocopierandreitassi") / "skin3.png"),
+    (skin1.get_width(), skin1.get_height()),
+)
+skin4 = pygame.transform.scale(
+    pygame.image.load(files("giocopierandreitassi") / "skin4.png"),
+    (skin1.get_width(), skin1.get_height()),
+)
+skin5 = pygame.transform.scale(
+    pygame.image.load(files("giocopierandreitassi") / "skin5.png"),
+    (skin1.get_width(), skin1.get_height()),
+)
+skin6 = pygame.transform.scale(
+    pygame.image.load(files("giocopierandreitassi") / "skin6.png"),
+    (skin1.get_width(), skin1.get_height()),
+)
+rotella_impostazioni = pygame.transform.scale(
+    pygame.image.load(files("giocopierandreitassi") / "rotella.png"), (70, 50)
+)
+base = pygame.transform.scale(
+    pygame.image.load(files("giocopierandreitassi") / "base2.png"), (400, 100)
+)
+gameover_img = pygame.image.load(files("giocopierandreitassi") / "gameover.png")
+tubo_giu = pygame.image.load(files("giocopierandreitassi") / "tubo.png")
+tubo_su = pygame.transform.flip(
+    tubo_giu, False, True
+)  # tubo capovolto per quello in alto
 
 # ──────────────────────────────────────────────────────────────────────────────
 # COSTANTI DI GIOCO
 # ──────────────────────────────────────────────────────────────────────────────
-schermo        = pygame.display.set_mode((400, 600))
+schermo = pygame.display.set_mode((400, 600))
 pygame.display.set_caption("Flappy Bird")
-FPS            = 60          # fotogrammi al secondo
-VEL_AVANZAMENTO = 4          # velocità di avanzamento tubi e base
-VEL_SFONDO     = 0.5         # velocità dello sfondo (più lenta per effetto parallasse)
-clock          = pygame.time.Clock()
+FPS = 60  # fotogrammi al secondo
+VEL_AVANZAMENTO = 4  # velocità di avanzamento tubi e base
+VEL_SFONDO = 0.5  # velocità dello sfondo (più lenta per effetto parallasse)
+clock = pygame.time.Clock()
 
 # ──────────────────────────────────────────────────────────────────────────────
 # FILE JSON PER LA CLASSIFICA
@@ -46,20 +70,20 @@ FILE_CLASSIFICA = "classifica.json"
 # VARIABILI GLOBALI DI GIOCO
 # Vengono inizializzate qui e reimpostate ogni volta che si ricomincia una partita.
 # ──────────────────────────────────────────────────────────────────────────────
-uccello    = skin1     # immagine dell'uccello corrente (cambia in base alla skin scelta)
-uccello_x  = 50        # posizione orizzontale dell'uccello (fissa)
-uccello_y  = 300       # posizione verticale dell'uccello (varia con la fisica)
-velocitay  = 0         # velocità verticale dell'uccello (positiva = scende, negativa = sale)
-basex      = 0         # offset orizzontale della base (per animazione scorrimento)
-sfondox    = 0.0       # offset orizzontale dello sfondo (float per velocità decimale)
-tubi       = []        # lista di dizionari, uno per ogni tubo presente a schermo
-punteggio  = 0         # punteggio della partita corrente
-fra_i_tubi = False     # True se l'uccello è orizzontalmente dentro un varco di tubi
-giocatore  = ""        # nome del giocatore attualmente connesso
-
+uccello = skin1  # immagine dell'uccello corrente (cambia in base alla skin scelta)
+uccello_x = 50  # posizione orizzontale dell'uccello (fissa)
+uccello_y = 300  # posizione verticale dell'uccello (varia con la fisica)
+velocitay = 0  # velocità verticale dell'uccello (positiva = scende, negativa = sale)
+basex = 0  # offset orizzontale della base (per animazione scorrimento)
+sfondox = 0.0  # offset orizzontale dello sfondo (float per velocità decimale)
+tubi = []  # lista di dizionari, uno per ogni tubo presente a schermo
+punteggio = 0  # punteggio della partita corrente
+fra_i_tubi = False  # True se l'uccello è orizzontalmente dentro un varco di tubi
+giocatore = ""  # nome del giocatore attualmente connesso
 
 
 # SEZIONE 1 – GESTIONE CLASSIFICA (JSON)
+
 
 def carica_classifica():
     """
@@ -68,12 +92,12 @@ def carica_classifica():
     Se il file non esiste o è corrotto, restituisce un dizionario vuoto.
     """
     if not os.path.exists(FILE_CLASSIFICA):
-        return {}                                   # prima volta: file ancora assente
+        return {}  # prima volta: file ancora assente
     try:
         with open(FILE_CLASSIFICA, "r") as f:
-            return json.load(f)                    # deserializza il JSON in un dict Python
+            return json.load(f)  # deserializza il JSON in un dict Python
     except (json.JSONDecodeError, IOError):
-        return {}                                  # file corrotto → partiamo da zero
+        return {}  # file corrotto → partiamo da zero
 
 
 def salva_classifica(classifica):
@@ -82,7 +106,7 @@ def salva_classifica(classifica):
     indent=2 rende il file leggibile anche aprendo con un editor di testo.
     """
     with open(FILE_CLASSIFICA, "w") as f:
-        json.dump(classifica, f, indent=2)         # serializza il dict in JSON formattato
+        json.dump(classifica, f, indent=2)  # serializza il dict in JSON formattato
 
 
 def aggiorna_punteggio(nome, nuovo_punteggio):
@@ -92,14 +116,14 @@ def aggiorna_punteggio(nome, nuovo_punteggio):
     Ritorna True se è stato stabilito un nuovo record, False altrimenti.
     """
     classifica = carica_classifica()
-    record_precedente = classifica.get(nome, 0)    # 0 se il giocatore non ha mai giocato
+    record_precedente = classifica.get(nome, 0)  # 0 se il giocatore non ha mai giocato
 
     if nuovo_punteggio > record_precedente:
-        classifica[nome] = nuovo_punteggio         # aggiorna solo se è un nuovo massimo
+        classifica[nome] = nuovo_punteggio  # aggiorna solo se è un nuovo massimo
         salva_classifica(classifica)
-        return True                                # segnala nuovo record al chiamante
+        return True  # segnala nuovo record al chiamante
 
-    return False                                   # nessun aggiornamento necessario
+    return False  # nessun aggiornamento necessario
 
 
 def top_classifica(quanti=10):
@@ -111,8 +135,7 @@ def top_classifica(quanti=10):
     # sorted() con key=lambda ordina per il secondo elemento della tupla (il punteggio)
     # reverse=True → ordine decrescente (dal più alto)
     ordinata = sorted(classifica.items(), key=lambda x: x[1], reverse=True)
-    return ordinata[:quanti]                       # ritorna solo i primi N
-
+    return ordinata[:quanti]  # ritorna solo i primi N
 
 
 # SEZIONE 2 – FUNZIONI UI (pannelli, tasti, sfondo)
@@ -142,8 +165,8 @@ def disegna_tasto(testo_str, cx, cy, w, h, col_sfondo, col_testo, font):
     font       : oggetto pygame.font
     """
     rect = pygame.Rect(cx - w // 2, cy - h // 2, w, h)
-    pygame.draw.rect(schermo, col_sfondo, rect, border_radius=12)          # riempimento
-    pygame.draw.rect(schermo, col_testo,  rect, 2, border_radius=12)       # bordo sottile
+    pygame.draw.rect(schermo, col_sfondo, rect, border_radius=12)  # riempimento
+    pygame.draw.rect(schermo, col_testo, rect, 2, border_radius=12)  # bordo sottile
     txt = font.render(testo_str, True, col_testo)
     schermo.blit(txt, (cx - txt.get_width() // 2, cy - txt.get_height() // 2))
     return rect
@@ -156,10 +179,9 @@ def disegna_pannello(x, y, w, h, alpha=160):
 
     alpha: opacità 0 (invisibile) – 255 (opaco)
     """
-    pannello = pygame.Surface((w, h), pygame.SRCALPHA)   # superficie con canale alpha
+    pannello = pygame.Surface((w, h), pygame.SRCALPHA)  # superficie con canale alpha
     pannello.fill((0, 0, 0, alpha))
     schermo.blit(pannello, (x, y))
-
 
 
 # SEZIONE 3 – SCHERMATE (login, menu, skin, classifica, game over)
@@ -174,14 +196,14 @@ def schermata_login():
     """
     global giocatore
 
-    sx      = 0.0                                          # offset sfondo per animazione
-    nome    = ""                                           # stringa digitata dall'utente
-    errore  = ""                                           # messaggio di errore eventuale
+    sx = 0.0  # offset sfondo per animazione
+    nome = ""  # stringa digitata dall'utente
+    errore = ""  # messaggio di errore eventuale
 
-    font_tit   = pygame.font.SysFont("Arial", 32, bold=True)
+    font_tit = pygame.font.SysFont("Arial", 32, bold=True)
     font_input = pygame.font.SysFont("Arial", 26)
-    font_err   = pygame.font.SysFont("Arial", 18)
-    font_hint  = pygame.font.SysFont("Arial", 16)
+    font_err = pygame.font.SysFont("Arial", 18)
+    font_hint = pygame.font.SysFont("Arial", 16)
 
     while True:
         # ── aggiorna animazione sfondo ──
@@ -210,7 +232,9 @@ def schermata_login():
 
         # ── tasto ENTRA ──
         col_btn = (50, 180, 80) if nome.strip() else (100, 100, 100)  # grigio se vuoto
-        rect_entra = disegna_tasto("ENTRA", 200, 330, 160, 44, col_btn, (255, 255, 255), font_input)
+        rect_entra = disegna_tasto(
+            "ENTRA", 200, 330, 160, 44, col_btn, (255, 255, 255), font_input
+        )
 
         # ── eventuale messaggio di errore ──
         if errore:
@@ -228,7 +252,7 @@ def schermata_login():
 
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_BACKSPACE:
-                    nome = nome[:-1]                           # cancella ultimo carattere
+                    nome = nome[:-1]  # cancella ultimo carattere
                     errore = ""
                 elif evento.key == pygame.K_RETURN:
                     # validazione: nome non vuoto e alfanumerico
@@ -237,8 +261,8 @@ def schermata_login():
                     elif not nome.replace("_", "").replace(" ", "").isalnum():
                         errore = "Usa solo lettere, numeri o _"
                     else:
-                        giocatore = nome.strip()               # salva il nome globalmente
-                        return                                 # esci dal login
+                        giocatore = nome.strip()  # salva il nome globalmente
+                        return  # esci dal login
                 else:
                     # aggiunge il carattere digitato se sotto il limite
                     if len(nome) < 16:
@@ -261,7 +285,7 @@ def schermata_classifica():
     Il giocatore corrente viene evidenziato in giallo.
     Tasto INDIETRO o ESC per tornare al menu.
     """
-    sx       = 0.0
+    sx = 0.0
     font_tit = pygame.font.SysFont("Arial", 30, bold=True)
     font_rig = pygame.font.SysFont("Arial", 22)
     font_btn = pygame.font.SysFont("Arial", 20)
@@ -282,7 +306,9 @@ def schermata_classifica():
 
         # ── intestazione colonne ──
         pygame.draw.line(schermo, (200, 200, 200), (30, 90), (370, 90), 1)
-        col_h = font_rig.render("#    Nome                 Punti", True, (180, 220, 255))
+        col_h = font_rig.render(
+            "#    Nome                 Punti", True, (180, 220, 255)
+        )
         schermo.blit(col_h, (38, 95))
         pygame.draw.line(schermo, (200, 200, 200), (30, 118), (370, 118), 1)
 
@@ -299,13 +325,13 @@ def schermata_classifica():
 
                 # colore diverso per i primi tre posti
                 if i == 0:
-                    col = (255, 215, 0)      # oro
+                    col = (255, 215, 0)  # oro
                 elif i == 1:
-                    col = (192, 192, 192)    # argento
+                    col = (192, 192, 192)  # argento
                 elif i == 2:
-                    col = (205, 127, 50)     # bronzo
+                    col = (205, 127, 50)  # bronzo
                 else:
-                    col = (230, 230, 230)    # bianco normale
+                    col = (230, 230, 230)  # bianco normale
 
                 # evidenzia il giocatore corrente in ciano
                 if nome == giocatore:
@@ -313,19 +339,22 @@ def schermata_classifica():
 
                 # tronca nomi lunghi per non uscire dal pannello
                 nome_troncato = nome[:14] + ".." if len(nome) > 14 else nome
-                riga = f"{i+1:<4} {nome_troncato:<18} {punti}"
-                txt  = font_rig.render(riga, True, col)
+                riga = f"{i + 1:<4} {nome_troncato:<18} {punti}"
+                txt = font_rig.render(riga, True, col)
                 schermo.blit(txt, (38, y_riga))
 
         # ── punteggio personale dell'utente loggato (in fondo al pannello) ──
         classifica_completa = carica_classifica()
         mio_record = classifica_completa.get(giocatore, 0)
-        mio_txt = font_btn.render(f"Il tuo record: {mio_record}  ({giocatore})", True, (80, 255, 200))
+        mio_txt = font_btn.render(
+            f"Il tuo record: {mio_record}  ({giocatore})", True, (80, 255, 200)
+        )
         schermo.blit(mio_txt, (200 - mio_txt.get_width() // 2, 440))
 
         # ── tasto indietro ──
-        rect_back = disegna_tasto("← Indietro", 200, 490, 160, 38,
-                                  (180, 60, 60), (255, 255, 255), font_btn)
+        rect_back = disegna_tasto(
+            "← Indietro", 200, 490, 160, 38, (180, 60, 60), (255, 255, 255), font_btn
+        )
 
         pygame.display.update()
         clock.tick(FPS)
@@ -336,7 +365,7 @@ def schermata_classifica():
                 exit()
             if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 if rect_back.collidepoint(evento.pos):
-                    return                                 # torna al menu
+                    return  # torna al menu
             if evento.type == pygame.KEYDOWN and evento.key == pygame.K_ESCAPE:
                 return
 
@@ -350,17 +379,17 @@ def seleziona_skin():
     """
     global uccello
 
-    sx       = 0.0
+    sx = 0.0
     font_tit = pygame.font.SysFont("Arial", 24, bold=True)
     font_btn = pygame.font.SysFont("Arial", 20)
-    opzioni  = [skin1, skin2, skin3, skin4, skin5, skin6]
+    opzioni = [skin1, skin2, skin3, skin4, skin5, skin6]
 
     # calcola posizione centrata delle skin nella riga
-    n         = len(opzioni)
-    padding   = 10
-    larg_tot  = n * skin1.get_width() + (n - 1) * padding
-    start_x   = (400 - larg_tot) // 2
-    skin_y    = 230
+    n = len(opzioni)
+    padding = 10
+    larg_tot = n * skin1.get_width() + (n - 1) * padding
+    start_x = (400 - larg_tot) // 2
+    skin_y = 230
 
     while True:
         sx -= VEL_SFONDO
@@ -398,8 +427,9 @@ def seleziona_skin():
         schermo.blit(sel_lbl, (200 - sel_lbl.get_width() // 2, 378))
 
         # ── tasto indietro ──
-        rect_back = disegna_tasto("← Indietro", 200, 430, 150, 38,
-                                  (180, 60, 60), (255, 255, 255), font_btn)
+        rect_back = disegna_tasto(
+            "← Indietro", 200, 430, 150, 38, (180, 60, 60), (255, 255, 255), font_btn
+        )
 
         pygame.display.update()
         clock.tick(FPS)
@@ -412,9 +442,9 @@ def seleziona_skin():
                 # controlla se ha cliccato su una skin
                 for r, op in skin_rects:
                     if r.collidepoint(evento.pos):
-                        uccello = op               # cambia la skin globale
+                        uccello = op  # cambia la skin globale
                 if rect_back.collidepoint(evento.pos):
-                    return                         # torna al menu
+                    return  # torna al menu
             if evento.type == pygame.KEYDOWN and evento.key == pygame.K_ESCAPE:
                 return
 
@@ -430,11 +460,11 @@ def menu():
       - Nome del giocatore loggato in alto a sinistra
     Sfondo animato con effetto parallasse.
     """
-    sx       = 0.0
+    sx = 0.0
     font_tit = pygame.font.SysFont("Arial", 44, bold=True)
     font_btn = pygame.font.SysFont("Arial", 28, bold=True)
-    font_sm  = pygame.font.SysFont("Arial", 20)
-    font_xs  = pygame.font.SysFont("Arial", 16)
+    font_sm = pygame.font.SysFont("Arial", 20)
+    font_xs = pygame.font.SysFont("Arial", 16)
 
     while True:
         sx -= VEL_SFONDO
@@ -451,21 +481,23 @@ def menu():
         schermo.blit(rotella_impostazioni, (340, 10))
 
         # ── titolo con ombra ──
-        ombra  = font_tit.render("FLAPPY BIRD", True, (0, 0, 0))
+        ombra = font_tit.render("FLAPPY BIRD", True, (0, 0, 0))
         titolo = font_tit.render("FLAPPY BIRD", True, (255, 255, 255))
-        schermo.blit(ombra,  (200 - titolo.get_width() // 2 + 2, 122))
-        schermo.blit(titolo, (200 - titolo.get_width() // 2,     120))
+        schermo.blit(ombra, (200 - titolo.get_width() // 2 + 2, 122))
+        schermo.blit(titolo, (200 - titolo.get_width() // 2, 120))
 
         # ── uccello decorativo (usa la skin scelta) ──
         schermo.blit(uccello, (200 - uccello.get_width() // 2, 200))
 
         # ── tasto GIOCA ──
-        rect_gioca = disegna_tasto("GIOCA", 200, 340, 180, 52,
-                                   (50, 200, 80), (255, 255, 255), font_btn)
+        rect_gioca = disegna_tasto(
+            "GIOCA", 200, 340, 180, 52, (50, 200, 80), (255, 255, 255), font_btn
+        )
 
         # ── tasto CLASSIFICA ──
-        rect_class = disegna_tasto("CLASSIFICA", 200, 415, 180, 40,
-                                   (180, 140, 30), (255, 255, 255), font_sm)
+        rect_class = disegna_tasto(
+            "CLASSIFICA", 200, 415, 180, 40, (180, 140, 30), (255, 255, 255), font_sm
+        )
 
         pygame.display.update()
         clock.tick(FPS)
@@ -477,11 +509,11 @@ def menu():
 
             if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
                 if rect_gioca.collidepoint(evento.pos):
-                    inizializza()                          # prepara la partita
-                    return                                 # esce dal menu → entra nel game loop
+                    inizializza()  # prepara la partita
+                    return  # esce dal menu → entra nel game loop
 
                 if rect_class.collidepoint(evento.pos):
-                    schermata_classifica()                 # mostra la classifica, poi torna qui
+                    schermata_classifica()  # mostra la classifica, poi torna qui
 
                 # click sulla rotella → selezione skin
                 if 340 <= evento.pos[0] <= 390 and 10 <= evento.pos[1] <= 60:
@@ -505,7 +537,7 @@ def hai_perso():
 
     font_big = pygame.font.SysFont("Arial", 28, bold=True)
     font_med = pygame.font.SysFont("Arial", 22)
-    font_sm  = pygame.font.SysFont("Arial", 18)
+    font_sm = pygame.font.SysFont("Arial", 18)
 
     # mostra l'immagine gameover centrata
     schermo.blit(gameover_img, (200 - gameover_img.get_width() // 2, 160))
@@ -516,14 +548,14 @@ def hai_perso():
 
     # ── record personale (con "NUOVO RECORD!" se battuto) ──
     classifica = carica_classifica()
-    record     = classifica.get(giocatore, 0)
-    rec_col    = (0, 0, 0) if nuovo_record else (200, 200, 200)
-    rec_str    = f"Record: {record}  {'NUOVO!' if nuovo_record else ''}"
-    rec_txt    = font_med.render(rec_str, True, rec_col)
+    record = classifica.get(giocatore, 0)
+    rec_col = (0, 0, 0) if nuovo_record else (200, 200, 200)
+    rec_str = f"Record: {record}  {'NUOVO!' if nuovo_record else ''}"
+    rec_txt = font_med.render(rec_str, True, rec_col)
     schermo.blit(rec_txt, (200 - rec_txt.get_width() // 2, 308))
 
     # ── istruzioni ──
-    schermo.blit(font_sm.render("SPAZIO  →  rigioca",       True, (0, 0, 0)), (55, 355))
+    schermo.blit(font_sm.render("SPAZIO  →  rigioca", True, (0, 0, 0)), (55, 355))
     schermo.blit(font_sm.render("ESC     →  torna al menu", True, (0, 0, 0)), (55, 380))
 
     pygame.display.update()
@@ -535,11 +567,12 @@ def hai_perso():
                 exit()
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_SPACE:
-                    inizializza()      # riavvia la partita (stessa skin, stesso utente)
+                    inizializza()  # riavvia la partita (stessa skin, stesso utente)
                     return
                 if evento.key == pygame.K_ESCAPE:
-                    menu()             # torna al menu principale
+                    menu()  # torna al menu principale
                     return
+
 
 # SEZIONE 4 – FUNZIONI TUBI
 # I tubi sono rappresentati come dizionari { "x": int, "y": int }.
@@ -552,8 +585,8 @@ def crea_tubo():
     e altezza casuale. Restituisce un dizionario con le chiavi "x" e "y".
     """
     return {
-        "x": 400,                             # parte fuori dallo schermo a destra
-        "y": random.randint(-30, 170)        # altezza casuale del varco
+        "x": 400,  # parte fuori dallo schermo a destra
+        "y": random.randint(-30, 170),  # altezza casuale del varco
     }
 
 
@@ -564,8 +597,8 @@ def avanza_e_disegna_tubo(t):
     Il valore +230 / -230 determina l'ampiezza del varco tra i tubi.
     """
     t["x"] -= VEL_AVANZAMENTO
-    schermo.blit(tubo_giu, (t["x"], t["y"] + 245))    # tubo che scende dall'alto
-    schermo.blit(tubo_su,  (t["x"], t["y"] - 245))    # tubo che sale dal basso
+    schermo.blit(tubo_giu, (t["x"], t["y"] + 245))  # tubo che scende dall'alto
+    schermo.blit(tubo_su, (t["x"], t["y"] - 245))  # tubo che sale dal basso
 
 
 def collisione_tubo(t, ux, uy, ucc):
@@ -575,16 +608,16 @@ def collisione_tubo(t, ux, uy, ucc):
     dell'immagine, così il gioco risulta più giusto.
     Restituisce True se c'è collisione, False altrimenti.
     """
-    tol    = 2
-    ux_dx  = ux + ucc.get_width()  - tol    # bordo destro uccello
-    ux_sx  = ux + tol                        # bordo sinistro uccello
-    uy_su  = uy + tol                        # bordo superiore uccello
-    uy_giu = uy + ucc.get_height() - tol    # bordo inferiore uccello
+    tol = 2
+    ux_dx = ux + ucc.get_width() - tol  # bordo destro uccello
+    ux_sx = ux + tol  # bordo sinistro uccello
+    uy_su = uy + tol  # bordo superiore uccello
+    uy_giu = uy + ucc.get_height() - tol  # bordo inferiore uccello
 
-    tx_dx  = t["x"] + tubo_giu.get_width()  # bordo destro tubo
-    tx_sx  = t["x"]                          # bordo sinistro tubo
-    ty_su  = t["y"] - 245 + tubo_su.get_height()  # bordo inferiore tubo superiore
-    ty_giu = t["y"] + 245                          # bordo superiore tubo inferiore
+    tx_dx = t["x"] + tubo_giu.get_width()  # bordo destro tubo
+    tx_sx = t["x"]  # bordo sinistro tubo
+    ty_su = t["y"] - 245 + tubo_su.get_height()  # bordo inferiore tubo superiore
+    ty_giu = t["y"] + 245  # bordo superiore tubo inferiore
 
     # prima controlla l'allineamento orizzontale, poi quello verticale
     if ux_dx > tx_sx and ux_sx < tx_dx:
@@ -600,7 +633,7 @@ def tubo_fra_i_tubi(t, ux, ucc):
     dal varco, viene assegnato un punto.
     Restituisce True se l'uccello è allineato con il tubo.
     """
-    tol   = 2
+    tol = 2
     ux_dx = ux + ucc.get_width() - tol
     ux_sx = ux + tol
     return ux_dx > t["x"] and ux_sx < t["x"] + tubo_giu.get_width()
@@ -609,6 +642,7 @@ def tubo_fra_i_tubi(t, ux, ucc):
 # ══════════════════════════════════════════════════════════════════════════════
 # SEZIONE 5 – INIZIALIZZAZIONE E DISEGNO
 # ══════════════════════════════════════════════════════════════════════════════
+
 
 def inizializza():
     """
@@ -620,14 +654,14 @@ def inizializza():
     global basex, sfondox
     global tubi, punteggio, fra_i_tubi
 
-    uccello_x  = 50
-    uccello_y  = 300
-    velocitay  = 0
-    basex      = 0
-    sfondox    = 0.0
-    punteggio  = 0
+    uccello_x = 50
+    uccello_y = 300
+    velocitay = 0
+    basex = 0
+    sfondox = 0.0
+    punteggio = 0
     fra_i_tubi = False
-    tubi       = [crea_tubo()]    # parte con un solo tubo
+    tubi = [crea_tubo()]  # parte con un solo tubo
 
 
 def disegna():
@@ -653,7 +687,7 @@ def disegna():
 
     # ── punteggio centrato in alto ──
     font = pygame.font.SysFont("Arial", 36, bold=True)
-    tp   = font.render(str(punteggio), True, (0, 0, 0))
+    tp = font.render(str(punteggio), True, (0, 0, 0))
     schermo.blit(tp, (200 - tp.get_width() // 2, 40))
 
     pygame.display.update()
@@ -677,12 +711,12 @@ menu()
 # fisica, input, collisioni, punteggio e disegno.
 
 while True:
-    clock.tick(FPS)    # limita il loop a FPS fotogrammi al secondo
+    clock.tick(FPS)  # limita il loop a FPS fotogrammi al secondo
 
     # scorrimento base (terreno)
     basex -= VEL_AVANZAMENTO
     if basex <= -400:
-        basex = 0       # reset ciclico
+        basex = 0  # reset ciclico
 
     # ── scorrimento sfondo (più lento = effetto parallasse) ──
     sfondox -= VEL_SFONDO
@@ -690,8 +724,8 @@ while True:
         sfondox = 0.0
 
     # ── fisica: gravità ──
-    velocitay += 0.5          # incremento costante verso il basso
-    uccello_y += velocitay    # aggiorna la posizione verticale
+    velocitay += 0.5  # incremento costante verso il basso
+    uccello_y += velocitay  # aggiorna la posizione verticale
 
     # ── gestione input ──
     for evento in pygame.event.get():
@@ -700,13 +734,13 @@ while True:
             exit()
 
         if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
-            velocitay = -8     # click sinistro → salto
+            velocitay = -8  # click sinistro → salto
 
         if evento.type == pygame.KEYDOWN:
             if evento.key == pygame.K_SPACE:
                 velocitay = -8  # spazio → salto
             if evento.key == pygame.K_ESCAPE:
-                menu()          # ESC → torna al menu (il game loop riprende dopo)
+                menu()  # ESC → torna al menu (il game loop riprende dopo)
 
     # ── gestione tubi: rimozione di quelli usciti a sinistra ──
     tubi = [t for t in tubi if t["x"] > -tubo_giu.get_width()]
@@ -718,14 +752,14 @@ while True:
     # ── rilevamento collisioni con i tubi ──
     for t in tubi:
         if collisione_tubo(t, uccello_x, uccello_y, uccello):
-            hai_perso()    # mostra game over e aggiorna JSON
+            hai_perso()  # mostra game over e aggiorna JSON
             break
 
     # ── sistema di punteggio ──
     # Salva lo stato precedente, poi ricalcola.
     # Se prima l'uccello era nel varco e ora non lo è più → ha superato il tubo → +1 punto.
     era_tra_i_tubi = fra_i_tubi
-    fra_i_tubi     = any(tubo_fra_i_tubi(t, uccello_x, uccello) for t in tubi)
+    fra_i_tubi = any(tubo_fra_i_tubi(t, uccello_x, uccello) for t in tubi)
     if era_tra_i_tubi and not fra_i_tubi:
         punteggio += 1
 
