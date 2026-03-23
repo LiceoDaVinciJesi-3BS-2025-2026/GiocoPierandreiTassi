@@ -1,5 +1,5 @@
 [project]
-name = "giocopierandreitassi"
+name = "dont_touch_the_column"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -9,8 +9,12 @@ dependencies = [
 ]
 
 [project.scripts]
-giocopierandreitassi = "giocopierandreitassi:main"
+giocopierandreitassi = "dont_touch_the_column:main"
 
 [build-system]
 requires = ["uv_build>=0.9.26,<0.10.0"]
 build-backend = "uv_build"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
