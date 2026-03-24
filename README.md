@@ -1,6 +1,7 @@
 # Don't touch the column
 
 <img width="396" height="596" alt="0" src="https://github.com/user-attachments/assets/25f77587-f1d8-480a-b63d-7fcca036567f" />
+
 Un tap. Un uccellino. Mille colonne pronte a farti fuori.
 Sei pronto a mettere alla prova i tuoi riflessi? Don't Touch the Column è il gioco frenetico che ti terrà incollato allo schermo per ore — o almeno fino al prossimo schianto!
 
@@ -13,6 +14,7 @@ Vola, schiva, sopravvivi. Sembra facile, vero? Eppure ogni colonna è una trappo
 <img width="398" height="598" alt="0" src="https://github.com/user-attachments/assets/23ebd4f7-4095-47ab-a66a-d2cdb815f73e" />
 
 🏆 Classifica globale — scala la leaderboard e dimostra a tutti chi comanda il cielo.
+
 <img width="398" height="594" alt="0" src="https://github.com/user-attachments/assets/98057161-df07-4c2a-8a3f-7456010413b1" />
 
 Che tu sia un novizio alle prime ali o un veterano del pixel, Don't Touch the Column ha una sola regola: non toccare la colonna. Semplice, no?
