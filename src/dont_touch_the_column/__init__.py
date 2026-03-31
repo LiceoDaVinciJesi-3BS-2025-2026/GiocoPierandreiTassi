@@ -675,78 +675,82 @@ def disegna():
 
 # SEZIONE 6 – AVVIO DEL GIOCO
 
+def main():
+    global basex, sfondox, uccello_y, velocitay, tubi, punteggio, fra_i_tubi
+    
+    # 1. Mostra prima il login per registrare il nome del giocatore
+    schermata_login()
 
-# 1. Mostra prima il login per registrare il nome del giocatore
-schermata_login()
+    # 2. Inizializza le variabili di gioco (senza entrare ancora nel game loop)
+    inizializza()
 
-# 2. Inizializza le variabili di gioco (senza entrare ancora nel game loop)
-inizializza()
-
-# 3. Mostra il menu principale
-menu()
+    # 3. Mostra il menu principale
+    menu()
 
 
-# GAME LOOP PRINCIPALE
-# Questo ciclo gira a 60 FPS e gestisce tutta la logica del gioco:
-# fisica, input, collisioni, punteggio e disegno.
+    # GAME LOOP PRINCIPALE
+    # Questo ciclo gira a 60 FPS e gestisce tutta la logica del gioco:
+    # fisica, input, collisioni, punteggio e disegno.
 
-while True:
-    clock.tick(FPS)    # limita il loop a FPS fotogrammi al secondo
+    while True:
+        clock.tick(FPS)    # limita il loop a FPS fotogrammi al secondo
 
-    # scorrimento base (terreno)
-    basex -= VEL_AVANZAMENTO
-    if basex <= -400:
-        basex = 0       # reset ciclico
+        # scorrimento base (terreno)
+        basex -= VEL_AVANZAMENTO
+        if basex <= -400:
+            basex = 0       # reset ciclico
 
-    # ── scorrimento sfondo (più lento = effetto parallasse) ──
-    sfondox -= VEL_SFONDO
-    if sfondox <= -400:
-        sfondox = 0.0
+        # ── scorrimento sfondo (più lento = effetto parallasse) ──
+        sfondox -= VEL_SFONDO
+        if sfondox <= -400:
+            sfondox = 0.0
 
-    # ── fisica: gravità ──
-    velocitay += 0.5          # incremento costante verso il basso
-    uccello_y += velocitay    # aggiorna la posizione verticale
+        # ── fisica: gravità ──
+        velocitay += 0.5          # incremento costante verso il basso
+        uccello_y += velocitay    # aggiorna la posizione verticale
 
-    # ── gestione input ──
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+        # ── gestione input ──
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                exit()
 
-        if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
-            velocitay = -8     # click sinistro → salto
+            if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+                velocitay = -8     # click sinistro → salto
 
-        if evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_SPACE:
-                velocitay = -8  # spazio → salto
-            if evento.key == pygame.K_ESCAPE:
-                menu()          # ESC → torna al menu (il game loop riprende dopo)
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_SPACE:
+                    velocitay = -8  # spazio → salto
+                if evento.key == pygame.K_ESCAPE:
+                    menu()          # ESC → torna al menu (il game loop riprende dopo)
 
-    # ── gestione tubi: rimozione di quelli usciti a sinistra ──
-    tubi = [t for t in tubi if t["x"] > -tubo_giu.get_width()]
+        # ── gestione tubi: rimozione di quelli usciti a sinistra ──
+        tubi = [t for t in tubi if t["x"] > -tubo_giu.get_width()]
 
-    # ── spawn nuovo tubo quando l'ultimo ha superato metà schermo ──
-    if tubi[-1]["x"] < 200:
-        tubi.append(crea_tubo())
+        # ── spawn nuovo tubo quando l'ultimo ha superato metà schermo ──
+        if tubi[-1]["x"] < 200:
+            tubi.append(crea_tubo())
 
-    # ── rilevamento collisioni con i tubi ──
-    for t in tubi:
-        if collisione_tubo(t, uccello_x, uccello_y, uccello):
-            hai_perso()    # mostra game over e aggiorna JSON
-            break
+        # ── rilevamento collisioni con i tubi ──
+        for t in tubi:
+            if collisione_tubo(t, uccello_x, uccello_y, uccello):
+                hai_perso()    # mostra game over e aggiorna JSON
+                break
 
-    # ── sistema di punteggio ──
-    # Salva lo stato precedente, poi ricalcola.
-    # Se prima l'uccello era nel varco e ora non lo è più → ha superato il tubo → +1 punto.
-    era_tra_i_tubi = fra_i_tubi
-    fra_i_tubi     = any(tubo_fra_i_tubi(t, uccello_x, uccello) for t in tubi)
-    if era_tra_i_tubi and not fra_i_tubi:
-        punteggio += 1
+        # ── sistema di punteggio ──
+        # Salva lo stato precedente, poi ricalcola.
+        # Se prima l'uccello era nel varco e ora non lo è più → ha superato il tubo → +1 punto.
+        era_tra_i_tubi = fra_i_tubi
+        fra_i_tubi     = any(tubo_fra_i_tubi(t, uccello_x, uccello) for t in tubi)
+        if era_tra_i_tubi and not fra_i_tubi:
+            punteggio += 1
 
-    # ── collisione con il suolo o uscita dall'alto ──
-    if uccello_y > 480 or uccello_y < 0:
-        hai_perso()
+        # ── collisione con il suolo o uscita dall'alto ──
+        if uccello_y > 480 or uccello_y < 0:
+            hai_perso()
 
-    # ── disegna il frame ──
-    disegna()
+        # ── disegna il frame ──
+        disegna()
 
+if __name__ == "__main__":
+    main()
